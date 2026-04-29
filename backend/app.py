@@ -66,7 +66,12 @@ def register():
     if img is None: return jsonify({"status": "error", "message": "Invalid image"}), 400
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.1, 6)
-    if len(faces) == 0: return jsonify({"status": "error", "message": "No face detected"}), 400
+    
+    if len(faces) == 0: 
+        return jsonify({"status": "error", "message": "No face detected. Please face the camera."}), 400
+    if len(faces) > 1:
+        return jsonify({"status": "error", "message": "Multiple faces detected! Only one person should be in the frame during registration."}), 400
+
     student_id = len(label_map) + 1
     label_map[student_id] = name
     face_samples, ids = [], []
@@ -96,12 +101,15 @@ def attendance():
         if len(label_map) > 0:
             try:
                 id_, conf = recognizer.predict(gray[y:y+h, x:x+w])
-                if conf < 75:
+                # Professional Threshold: Lower is more accurate (0-100)
+                if conf < 65: 
                     name = label_map.get(id_, "Unknown")
-            except Exception:
+            except Exception as e:
+                print(f"Prediction Error: {e}")
                 pass
         
         if name != "Unknown":
+
             now = datetime.now()
             date, time = now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")
             conn = sqlite3.connect(DB_FILE); c = conn.cursor()

@@ -3,10 +3,11 @@ const API_BASE = window.location.hostname === "127.0.0.1" || window.location.hos
   ? "http://127.0.0.1:5000" 
   : window.location.origin; 
 
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
+let video;
+let canvas;
 const output = document.getElementById("output");
 const scanState = document.getElementById("scan-state");
+
 
 let attendanceInterval = null;
 let dashboardInterval = null;
@@ -32,25 +33,34 @@ function setScanState(active) {
 }
 
 async function startCamera() {
+  if (!video) video = document.getElementById("video");
   if (!video || !navigator.mediaDevices?.getUserMedia) return;
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = stream;
     await video.play();
-  } catch (_) {
+    console.log("✅ Camera started successfully");
+  } catch (err) {
+    console.error("❌ Camera error:", err);
     showMessage("Camera access denied. Allow camera and reload.", true);
   }
 }
 
+
 function captureImage() {
-  if (!video || !canvas) throw new Error("Camera not available");
-  if (!video.srcObject) throw new Error("Camera not started");
+  if (!video) video = document.getElementById("video");
+  if (!canvas) canvas = document.getElementById("canvas");
+  
+  if (!video || !canvas) throw new Error("Camera or Canvas element not found in DOM");
+  if (!video.srcObject) throw new Error("Camera stream not started yet. Please wait or allow camera.");
+  
   canvas.width = video.videoWidth || 640;
   canvas.height = video.videoHeight || 480;
   const ctx = canvas.getContext("2d");
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL("image/jpeg");
 }
+
 
 async function captureAndMarkAttendance() {
   const image = captureImage();
@@ -110,18 +120,20 @@ async function stopAttendance() {
 }
 
 async function registerStudent() {
+  const statusEl = document.getElementById("reg-message") || document.getElementById("output");
+  const nameInput = document.getElementById("reg-name") || document.getElementById("name");
+  const detailsInput = document.getElementById("reg-details") || document.getElementById("details");
+  
   try {
-    const nameInput = document.getElementById("name");
-    const detailsInput = document.getElementById("details");
     const name = nameInput?.value.trim();
     const details = detailsInput?.value.trim();
 
     if (!name) {
-      showMessage("Please enter student name", true);
+      if (statusEl) statusEl.textContent = "❌ Please enter student name";
       return;
     }
 
-    showMessage("🚀 Starting Burst Capture (10 angles)... Keep moving your head slightly.");
+    if (statusEl) statusEl.textContent = "🚀 Starting Burst Capture (10 angles)... Keep moving your head!";
     
     // Capture 10 images with a small delay
     for (let i = 1; i <= 10; i++) {
@@ -133,18 +145,21 @@ async function registerStudent() {
       });
       const registerData = await registerRes.json();
       if (!registerRes.ok) {
-        showMessage(`Capture ${i}/10 failed: ` + registerData.message, true);
+        if (statusEl) statusEl.textContent = `❌ Capture ${i}/10 failed: ` + registerData.message;
         return;
       }
-      showMessage(`Captured ${i}/10...`);
-      await new Promise(r => setTimeout(r, 200)); // 200ms delay
+      if (statusEl) statusEl.textContent = `📸 Captured ${i}/10...`;
+      await new Promise(r => setTimeout(r, 300)); // 300ms delay
     }
     
-    showMessage("✅ Registration Complete! You are now in the Big Boss database.");
+    if (statusEl) statusEl.textContent = "✅ Registration Complete! You are now in the database.";
+    if (nameInput) nameInput.value = "";
+    if (detailsInput) detailsInput.value = "";
   } catch (err) {
-    showMessage(err.message || err, true);
+    if (statusEl) statusEl.textContent = "❌ Error: " + (err.message || err);
   }
 }
+
 
 async function updateMonitorLists() {
   const presentContainer = document.getElementById("tab-present");
