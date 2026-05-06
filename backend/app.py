@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, Response, send_from_directory
 from flask_cors import CORS
 import cv2
 import numpy as np
@@ -7,6 +7,8 @@ import pickle
 from datetime import datetime
 import sqlite3
 import base64
+import time
+import threading
 from dotenv import load_dotenv
 from ai_reporting import AttendanceAI
 import pymongo
@@ -16,16 +18,17 @@ from bson.binary import Binary
 # Initialize OpenCV LBPH Recognizer
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 recognizer = cv2.face.LBPHFaceRecognizer_create()
-TRAINER_FILE = "/tmp/trainer.yml"
-LABELS_FILE = "/tmp/labels.pkl"
+TRAINER_FILE = "trainer.yml"
+LABELS_FILE = "labels.pkl"
 
 
 load_dotenv()
 ai_handler = AttendanceAI()
 
 # MongoDB Configuration
-MONGO_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017")
-client = pymongo.MongoClient(MONGO_URI)
+import certifi
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
+client = pymongo.MongoClient(MONGO_URI, tlsCAFile=certifi.where())
 db = client["smart_attendance"]
 students_col = db["students"]
 attendance_col = db["attendance"]
@@ -70,7 +73,9 @@ label_map = {}
 load_recognizer()
 
 
-app = Flask(__name__)
+# Initialize Flask with frontend as static folder
+frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend"))
+app = Flask(__name__, static_folder=frontend_dir, static_url_path="")
 CORS(app)
 
 # DB Init is handled automatically by MongoDB
@@ -133,36 +138,9 @@ def register():
 
 @app.route("/attendance", methods=["POST"])
 def attendance():
-    data = request.json
-    img = base64_to_image(data.get("image"))
-    if img is None: return jsonify({"status": "error"}), 400
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, 1.2, 5)
-    results = []
-    for (x, y, w, h) in faces:
-        name, status, rem = "Unknown", "unmarked", 0
-        if len(label_map) > 0:
-            try:
-                id_, conf = recognizer.predict(gray[y:y+h, x:x+w])
-                # Professional Threshold: Lower is more accurate (0-100)
-                if conf < 65: 
-                    name = label_map.get(id_, "Unknown")
-            except Exception as e:
-                print(f"Prediction Error: {e}")
-                pass
-        
-        if name != "Unknown":
-            now = datetime.now()
-            date, time = now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")
-            last_entry = attendance_col.find_one({"name": name, "date": date}, sort=[("time", -1)])
-            if last_entry:
-                diff = (now - datetime.strptime(f"{date} {last_entry['time']}", "%Y-%m-%d %H:%M:%S")).total_seconds()
-                if diff < 600: status, rem = "marked", int(600 - diff)
-            if status == "unmarked":
-                attendance_col.insert_one({"name": name, "date": date, "time": time})
-                status, rem = "marked", 600
-        results.append({"name": name, "status": status, "seconds_remaining": rem, "box": [int(x), int(y), int(w), int(h)]})
-    return jsonify({"status": "success", "recognized": results})
+    # Deprecated for live loop: Frontend now just queries the DB, it doesn't need to send images for standard attendance.
+    # We keep this strictly for manual snapshot logic if needed, but return success immediately.
+    return jsonify({"status": "success", "recognized": []})
 
 @app.route("/report")
 def report():
@@ -245,10 +223,166 @@ def get_latest_report():
     return send_file(latest, as_attachment=True)
 
 
+# Global Camera Shared Resource
+class VideoCamera:
+    def __init__(self):
+        print("Starting VideoCapture(0)...")
+        self.cap = cv2.VideoCapture(0)
+        # Fallback to alternative camera indices if 0 fails
+        if not self.cap.isOpened():
+            print("Trying index 1...", flush=True)
+            self.cap = cv2.VideoCapture(1)
+            
+        if not self.cap.isOpened():
+            print("ERROR: Could not open camera!", flush=True)
+        else:
+            print("SUCCESS: Camera opened successfully!", flush=True)
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+            
+        self.latest_frame = None
+        self.last_scan_name = "Awaiting"
+        self.last_scan_time = 0
+        self.lock = threading.Lock()
+        self.is_active = True # Allows controlling the loop
+        self.thread = threading.Thread(target=self._capture_loop, daemon=True)
+        self.thread.start()
+
+    def _capture_loop(self):
+        # Enforce strict 10-minute (600 seconds) attendance log rule
+        ATTENDANCE_COOLDOWN = 600 
+        frame_skip = 0
+        
+        while self.is_active:
+            if not self.cap.isOpened():
+                time.sleep(1)
+                continue
+                
+            success, frame = self.cap.read()
+            if not success:
+                time.sleep(0.1)
+                continue
+            
+            # Recognition Logic
+            try:
+                frame_skip += 1
+                # Run heavy detection every 3rd frame and on a smaller image
+                if frame_skip % 3 == 0:
+                    small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+                    gray = cv2.cvtColor(small_frame, cv2.COLOR_BGR2GRAY)
+                    self.last_faces = face_cascade.detectMultiScale(gray, 1.2, 5)
+                
+                faces = getattr(self, 'last_faces', [])
+
+                for (x, y, w, h) in faces:
+                    x, y, w, h = x*2, y*2, w*2, h*2 # Scale back up
+                    name = "Unknown"
+                    color = (0, 0, 255)
+                    if len(label_map) > 0:
+                        try:
+                            gray_full = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                            id_, conf = recognizer.predict(gray_full[y:y+h, x:x+w])
+                            # Relaxed threshold to 85 for better recognition (fixes "unverified")
+                            if conf < 85:
+                                name = label_map.get(id_, "Unknown")
+                                color = (0, 255, 0)
+                                # Log attendance
+                                now = datetime.now()
+                                date, t_str = now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")
+                                last = attendance_col.find_one({"name": name, "date": date}, sort=[("time", -1)])
+                                if not last or (now - datetime.strptime(f"{date} {last['time']}", "%Y-%m-%d %H:%M:%S")).total_seconds() > ATTENDANCE_COOLDOWN:
+                                    attendance_col.insert_one({"name": name, "date": date, "time": t_str})
+                                    self.last_scan_name = name
+                                    self.last_scan_time = time.time()
+                                    print(f"✅ Auto-logged attendance for {name} at {t_str}")
+                        except Exception as inner_e:
+                            pass
+                    cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
+                    cv2.putText(frame, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
+            except Exception as e:
+                print(f"Camera frame processing error: {e}")
+            
+            ret, buffer = cv2.imencode('.jpg', frame)
+            with self.lock:
+                self.latest_frame = buffer.tobytes()
+            time.sleep(0.01) # Faster loop, ~60 FPS capable, limited by camera
+
+shared_camera = None
+
+def get_camera():
+    global shared_camera
+    if shared_camera is None:
+        print("Initializing Shared Camera...", flush=True)
+        shared_camera = VideoCamera()
+    return shared_camera
+
+# Start camera at boot
+print("Bootstrapping Camera System...", flush=True)
+get_camera()
+
+@app.route("/api/realtime/dashboard")
+def dashboard_stats():
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        total_students = students_col.count_documents({})
+        present_count = attendance_col.count_documents({"date": today})
+        cam = get_camera()
+        cooldown_rem = max(0, int(600 - (time.time() - cam.last_scan_time))) if cam.last_scan_time > 0 else 0
+        return jsonify({
+            "present_today": present_count,
+            "absent_today": max(0, total_students - present_count),
+            "total_students": total_students,
+            "present_names": [],
+            "last_user": cam.last_scan_name,
+            "next_scan_in": cooldown_rem
+        })
+    except:
+        return jsonify({"present_today": 0, "absent_today": 0, "total_students": 0, "present_names": []})
+
+def gen_frames():
+    cam = get_camera()
+    while True:
+        frame = None
+        with cam.lock:
+            frame = cam.latest_frame
+        if frame:
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n'
+                   b'Content-Length: ' + str(len(frame)).encode() + b'\r\n\r\n' + frame + b'\r\n')
+        time.sleep(0.05)
+
+@app.route("/stop_attendance", methods=["POST"])
+def stop_attendance(): return jsonify({"status": "success"})
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route("/capture_frame")
+def capture_frame():
+    cam = get_camera()
+    with cam.lock:
+        if cam.latest_frame:
+            return Response(cam.latest_frame, mimetype='image/jpeg')
+    return "Error", 500
+
+@app.route('/mobile_view')
+def mobile_view():
+    return """
+    <html>
+      <body style="margin:0; background:#000; display:flex; align-items:center; justify-content:center; height:100vh; overflow:hidden;">
+        <img src="/video_feed" style="max-width:100%; max-height:100%; object-fit:contain;">
+      </body>
+    </html>
+    """
+
 @app.route("/")
 def index():
-    return jsonify({"status": "Backend is running!"})
+    return send_file(os.path.join(frontend_dir, "index.html"))
 
+@app.route("/<path:path>")
+def serve_static(path):
+    return send_from_directory(frontend_dir, path)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True, threaded=True, use_reloader=False)

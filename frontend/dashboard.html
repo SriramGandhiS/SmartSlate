@@ -3,78 +3,74 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Smart Attendance | Intelligence Hub</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <title>Smart Attendance | Hub</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="dashboard">
-  <header class="fyn-header">
-    <div class="fyn-logo">INTELLIGENCE HUB</div>
-    <nav class="fyn-nav">
+
+  <header class="bb-header">
+    <div class="bb-logo">SMART<span>ATTENDANCE</span></div>
+    <nav class="bb-nav">
       <a href="index.html">Monitor</a>
-      <a href="register.html">Student Entry</a>
       <a href="dashboard.html" class="active">Hub</a>
+      <a href="register.html">Register</a>
       <a href="profile.html">Profiles</a>
     </nav>
   </header>
 
-  <main class="fyn-main">
-    <h1 class="fyn-title" style="font-size: 3rem; margin-bottom: 30px;">Classroom <br>Intelligence.</h1>
+  <main class="bb-main">
+    <div style="margin-bottom: 40px;">
+      <h1 style="font-size: 48px; font-weight: 900; letter-spacing: -2px; color: var(--text-white);">INTELLIGENCE <span style="color: var(--accent-lime);">HUB.</span></h1>
+    </div>
 
-    <!-- Analytics Row -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px;">
-      <div class="fyn-panel" style="text-align: center;">
-        <div style="color: var(--text-dim); font-size: 0.8rem; font-weight: 700;">TOTAL OCCUPANCY</div>
-        <div style="font-size: 3rem; font-weight: 800; color: var(--accent);" id="stat-occupancy">--</div>
-        <p style="font-size: 0.8rem; opacity: 0.6;">Active students detected</p>
+    <!-- Stats -->
+    <div class="bb-stats-grid" style="margin-bottom: 40px;">
+      <div class="bb-stat-item">
+        <div class="bb-stat-label">Verified Today</div>
+        <div class="bb-stat-value lime" id="stat-present">0</div>
       </div>
-      <div class="fyn-panel" style="text-align: center;">
-        <div style="color: var(--text-dim); font-size: 0.8rem; font-weight: 700;">AVG. ATTENDANCE</div>
-        <div style="font-size: 3rem; font-weight: 800; color: var(--safe);" id="stat-avg">--%</div>
-        <p style="font-size: 0.8rem; opacity: 0.6;">Classroom average</p>
+      <div class="bb-stat-item">
+        <div class="bb-stat-label">Total Occupancy</div>
+        <div class="bb-stat-value" id="stat-total">0</div>
       </div>
-      <div class="fyn-panel" style="text-align: center;">
-        <div style="color: var(--text-dim); font-size: 0.8rem; font-weight: 700;">ABSENT ALERT</div>
-        <div style="font-size: 3rem; font-weight: 800; color: var(--error);" id="stat-absent">--</div>
-        <p style="font-size: 0.8rem; opacity: 0.6;">Students missing today</p>
+      <div class="bb-stat-item">
+        <div class="bb-stat-label">Absent Alert</div>
+        <div class="bb-stat-value danger" id="stat-absent">0</div>
       </div>
     </div>
 
     <!-- Controls -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 20px;">
-      <div style="display: flex; gap: 10px; flex: 1; max-width: 500px;">
-        <input type="text" id="search-name" placeholder="Search student name..." style="flex: 1; padding: 12px 20px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); font-size: 0.9rem;">
-        <button class="fyn-btn" onclick="searchFromDashboard()" style="padding: 10px 20px;">Search</button>
-      </div>
-      <div style="display: flex; gap: 10px;">
-        <select id="month-select" style="padding: 12px 20px; border-radius: 15px; border: 1px solid rgba(0,0,0,0.1); background: white; font-weight: 600;"></select>
-        <button class="fyn-btn" onclick="loadReport(document.getElementById('month-select').value)">Filter</button>
-        <button class="fyn-btn" onclick="generateAIReport()" style="background: var(--accent);">Generate PDF</button>
-      </div>
+    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+      <input type="text" id="search-name" class="bb-input" style="flex: 1;" placeholder="Search student name...">
+      <button class="bb-btn" onclick="searchFromDashboard()">Search</button>
+      <select id="month-select" class="bb-input" style="background: var(--bg-card);"></select>
+      <button class="bb-btn" onclick="loadSelectedMonth()">Filter</button>
     </div>
 
-    <!-- Data Table -->
-    <div class="fyn-panel" style="background: white; border: 1px solid rgba(0,0,0,0.05); padding: 0; overflow: hidden;">
-      <div style="padding: 20px 30px; border-bottom: 1px solid rgba(0,0,0,0.05);">
-        <h3 style="font-weight: 800;">Historical Time-Strap Records</h3>
+    <!-- Table -->
+    <div class="bb-card">
+      <div class="bb-panel-header">
+        <div class="bb-panel-title">HISTORICAL DATA STREAM</div>
+        <button class="bb-btn" style="padding: 6px 12px; font-size: 10px;" onclick="generateAIReport()">GENERATE PDF</button>
       </div>
-      <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse;">
+      <div class="bb-table-wrap">
+        <table class="bb-table">
           <thead>
-            <tr style="background: var(--bg);">
-              <th style="padding: 15px 30px; text-align: left; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim);">STUDENT</th>
-              <th style="padding: 15px; text-align: left; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim);">DATE</th>
-              <th style="padding: 15px; text-align: center; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim);">P1</th>
-              <th style="padding: 15px; text-align: center; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim);">P2</th>
-              <th style="padding: 15px; text-align: center; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim);">P3</th>
-              <th style="padding: 15px; text-align: center; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim);">P4</th>
-              <th style="padding: 15px; text-align: center; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim);">P5</th>
-              <th style="padding: 15px; text-align: center; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim);">P6</th>
-              <th style="padding: 15px; text-align: center; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim);">P7</th>
-              <th style="padding: 15px; text-align: center; font-size: 0.8rem; letter-spacing: 1px; color: var(--text-dim);">P8</th>
+            <tr>
+              <th>Student</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th style="text-align:center">P1</th>
+              <th style="text-align:center">P2</th>
+              <th style="text-align:center">P3</th>
+              <th style="text-align:center">P4</th>
+              <th style="text-align:center">P5</th>
+              <th style="text-align:center">P6</th>
+              <th style="text-align:center">P7</th>
+              <th style="text-align:center">P8</th>
             </tr>
           </thead>
-          <tbody id="table">
+          <tbody id="table-body">
             <!-- Data will stream here -->
           </tbody>
         </table>
@@ -82,20 +78,18 @@
     </div>
   </main>
 
-  <!-- AI Toggle -->
-  <div class="ai-toggle-btn" onclick="toggleFullScreenChat()">AI</div>
+  <div class="ai-fab" onclick="toggleChat()">AI</div>
 
-  <!-- Full Screen Chat -->
-  <div id="full-screen-chat" class="full-screen-chat hidden">
-    <div class="chat-close" onclick="toggleFullScreenChat()">×</div>
-    <h2 style="font-size: 3rem; margin-bottom: 40px; color: var(--accent);">Intelligence Analysis</h2>
-    <div id="chat-messages" style="flex: 1; overflow-y: auto; margin-bottom: 40px;"></div>
+  <div class="chat-overlay" id="chat-overlay">
+    <div style="position: absolute; top: 40px; right: 40px; font-size: 40px; cursor: pointer;" onclick="toggleChat()">&times;</div>
+    <h2 style="font-size: 40px; margin-bottom: 40px;">HUB INTELLIGENCE</h2>
+    <div id="chat-messages" style="flex: 1; overflow-y: auto; margin-bottom: 40px; display: flex; flex-direction: column; gap: 20px;"></div>
     <div style="display: flex; gap: 20px;">
-      <input type="text" id="chat-input" placeholder="Query classroom trends..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--accent); border-radius: 20px; padding: 20px; color: white; font-size: 1.2rem;" onkeypress="if(event.key==='Enter') sendAdminChat()">
-      <button class="fyn-btn" onclick="sendAdminChat()" style="background: var(--accent); padding: 20px 40px;">Analyze</button>
+      <input type="text" id="chat-input" class="bb-input" style="flex: 1; font-size: 18px;" placeholder="Query hub data..." onkeypress="if(event.key==='Enter') sendChat()">
+      <button class="bb-btn" onclick="sendChat()" style="padding: 0 40px;">Execute</button>
     </div>
   </div>
 
-  <script src="script.js?v=8"></script>
+  <script src="script.js"></script>
 </body>
 </html>

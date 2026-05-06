@@ -1,10 +1,28 @@
-backend/.env
+# Environments
+venv/
+.env
 __pycache__/
 *.pyc
-attendance.db
-data/trainer.yml
-data/labels.pkl
-reports/
-data/encodings.pkl
 
-.vercel
+# Android Build
+**/build/
+.gradle/
+local.properties
+*.apk
+
+# Model data
+*.yml
+*.pkl
+backend/trainer.yml
+backend/labels.pkl
+
+# System / Logs
+dlib_install_log.txt
+*.log
+test_out.txt
+
+# Tools
+adb/
+android_sdk/
+cmdline-tools.zip
+platform-tools.zip

@@ -3,123 +3,65 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Smart Attendance | Modern Intelligence</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <title>Smart Attendance | Monitor</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="index">
-  <header class="fyn-header">
-    <div class="fyn-logo">SMART ATTENDANCE</div>
-    <nav class="fyn-nav">
+
+  <header class="bb-header">
+    <div class="bb-logo">SMART<span>ATTENDANCE</span></div>
+    <nav class="bb-nav">
       <a href="index.html" class="active">Monitor</a>
-      <a href="register.html">Student Entry</a>
       <a href="dashboard.html">Hub</a>
+      <a href="register.html">Register</a>
       <a href="profile.html">Profiles</a>
     </nav>
-    <div style="color: white; font-weight: 700;" id="live-status">System Standby</div>
   </header>
 
-  <main class="fyn-main">
-    <div class="fyn-grid">
-      <!-- Left: Tracking Hero -->
-      <div class="fyn-hero">
-        <h1 class="fyn-title">There is a <br>Better Way <br>to Track.</h1>
-        <div class="fyn-video-wrap">
-          <video id="live-video" autoplay playsinline muted></video>
-          <canvas id="live-overlay"></canvas>
+  <main class="bb-main">
+    <div class="bb-grid">
+      <!-- Camera Panel -->
+      <div class="bb-card">
+        <div class="bb-panel-header">
+          <div class="bb-panel-title">LIVE OPTICAL SENSOR</div>
+          <div style="color: var(--text-gray); font-size: 12px;" id="clock">00:00:00</div>
         </div>
-        <div style="margin-top: 30px;">
-          <button id="toggle-live" class="fyn-btn" onclick="toggleLiveFeed()">
-            <span>Let's Connect AI</span>
-            <span style="background: var(--accent); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">→</span>
-          </button>
+        <div class="bb-camera-wrap">
+          <img id="live-video" src="/video_feed" alt="Camera Feed" crossorigin="anonymous">
+        </div>
+        <div class="bb-panel-header" style="background: transparent; flex-direction: column; align-items: flex-start; gap: 4px;">
+          <div id="api-status" style="font-size: 12px; font-weight: 700; color: var(--accent-lime);">LINK ESTABLISHED</div>
+          <div id="cooldown-status" style="font-size: 11px; color: var(--text-gray); font-weight: 600;">NEXT SCAN: READY</div>
+        </div>
+        <div style="padding: 0 20px 20px;">
+          <button class="bb-btn" style="width: 100%; padding: 10px; font-size: 11px;" onclick="location.reload()">REBOOT SYSTEM</button>
         </div>
       </div>
 
-      <!-- Right: Intelligence Panels -->
-      <div class="fyn-intelligence">
-        <div class="fyn-panel">
-          <div class="tabs-header">
-            <button class="tab-btn active" onclick="switchMonitorTab('present')">Verified Entry</button>
-            <button class="tab-btn" onclick="switchMonitorTab('absent')">Missing List</button>
-            <button class="tab-btn" onclick="switchMonitorTab('all')">Registered</button>
-            <button class="tab-btn" onclick="switchMonitorTab('debug')" style="color: #ffb400;">System Health</button>
-          </div>
-          
-          <!-- Debug Hub -->
-          <div id="tab-debug" class="fyn-list hidden" style="padding: 20px; font-family: monospace; font-size: 0.8rem; background: #1a1a1a; color: #00ff00; border-radius: 15px;">
-             <div style="margin-bottom: 10px;">[ SYSTEM DIAGNOSTICS ]</div>
-             <div id="debug-camera">Camera: Initializing...</div>
-             <div id="debug-api">API Base: Checking...</div>
-             <div id="debug-browser">Browser: Checking...</div>
-             <div id="debug-error" style="color: #ff4d4d; margin-top: 10px; border-top: 1px solid #333; padding-top: 10px;">Last Error: None</div>
-             <button onclick="location.reload()" style="margin-top: 20px; background: #333; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 5px;">Reboot System</button>
-          </div>
-
-          
-          <!-- Registered List -->
-          <div id="tab-all" class="fyn-list hidden">
-             <div style="text-align: center; padding: 40px; color: var(--text-dim);">Loading student database...</div>
-          </div>
-
-          
-          <!-- Present List -->
-          <div id="tab-present" class="fyn-list">
-            <div style="text-align: center; padding: 40px; color: var(--text-dim);">Scanning for students...</div>
-          </div>
-          
-          <!-- Absent List (Hidden by default) -->
-          <div id="tab-absent" class="fyn-list hidden">
-             <div style="text-align: center; padding: 40px; color: var(--text-dim);">Calculating absentee list...</div>
-          </div>
+      <!-- Live Roster Panel -->
+      <div class="bb-card">
+        <div class="bb-panel-header">
+          <div class="bb-panel-title">VERIFIED LOG</div>
         </div>
-
-        <div class="fyn-panel" style="background: var(--panel-bg); color: white;">
-          <h3 style="margin-bottom: 15px; color: var(--accent);">AI Intelligence Summary</h3>
-          <p id="ai-quick-summary" style="font-size: 0.9rem; line-height: 1.6; opacity: 0.8;">
-            Initializing AI analysis... Show your face to generate insights.
-          </p>
+        <div id="list-present" style="max-height: 500px; overflow-y: auto;">
+          <!-- Data populated by script.js -->
         </div>
       </div>
     </div>
   </main>
 
-  <!-- Floating AI Assistant Toggle -->
-  <div class="ai-toggle-btn" onclick="toggleFullScreenChat()">
-    AI
-  </div>
+  <div class="ai-fab" onclick="toggleChat()">AI</div>
 
-  <!-- Full Screen Chat Overlay -->
-  <div id="full-screen-chat" class="full-screen-chat hidden">
-    <div class="chat-close" onclick="toggleFullScreenChat()">×</div>
-    <h2 style="font-size: 3rem; margin-bottom: 40px; color: var(--accent);">AI Command Assistant</h2>
-    <div id="chat-messages" style="flex: 1; overflow-y: auto; margin-bottom: 40px;">
-      <div class="msg ai" style="font-size: 1.5rem; max-width: 800px;">Hello. I am the intelligence behind your attendance system. What data points do you need analyzed?</div>
-    </div>
+  <div class="chat-overlay" id="chat-overlay">
+    <div style="position: absolute; top: 40px; right: 40px; font-size: 40px; cursor: pointer;" onclick="toggleChat()">&times;</div>
+    <h2 style="font-size: 40px; margin-bottom: 40px;">AURA INTELLIGENCE</h2>
+    <div id="chat-messages" style="flex: 1; overflow-y: auto; margin-bottom: 40px; display: flex; flex-direction: column; gap: 20px;"></div>
     <div style="display: flex; gap: 20px;">
-      <input type="text" id="chat-input" placeholder="Type your query here..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--accent); border-radius: 20px; padding: 20px; color: white; font-size: 1.2rem;" onkeypress="if(event.key==='Enter') sendAdminChat()">
-      <button class="fyn-btn" onclick="sendAdminChat()" style="background: var(--accent); padding: 20px 40px; font-size: 1.2rem;">Analyze</button>
+      <input type="text" id="chat-input" class="bb-input" style="flex: 1; font-size: 18px;" placeholder="Query system data..." onkeypress="if(event.key==='Enter') sendChat()">
+      <button class="bb-btn" onclick="sendChat()" style="padding: 0 40px;">Execute</button>
     </div>
   </div>
 
-  <script src="script.js?v=10"></script>
-  <script>
-    function switchMonitorTab(tab) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-present').classList.add('hidden');
-      document.getElementById('tab-absent').classList.add('hidden');
-      document.getElementById('tab-all').classList.add('hidden');
-      document.getElementById('tab-debug').classList.add('hidden');
-      document.getElementById('tab-' + tab).classList.remove('hidden');
-    }
-
-
-    
-    window.addEventListener('load', () => {
-      setTimeout(() => { if(typeof toggleLiveFeed === 'function') toggleLiveFeed(); }, 1000);
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
-
