@@ -1,32 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Smart Attendance | Profiles</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA | Sovereignty</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="profile">
+    <header>
+        <div class="logo-wrap">
+            <i data-lucide="scan-line" style="width: 18px; color: var(--text-main);"></i>
+            <div class="logo-text">AURA</div>
+        </div>
+        <nav>
+            <a href="index.html">Surveillance</a>
+            <a href="dashboard.html">Hub</a>
+            <a href="register.html">Secure Entry</a>
+            <a href="profile.html" class="active">Sovereignty</a>
+        </nav>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="mono" style="color: var(--text-muted);" id="clock">00:00:00</div>
+        </div>
+    </header>
 
-  <header class="bb-header">
-    <div class="bb-logo">SMART<span>ATTENDANCE</span></div>
-    <nav class="bb-nav">
-      <a href="index.html">Monitor</a>
-      <a href="dashboard.html">Hub</a>
-      <a href="register.html">Register</a>
-      <a href="profile.html" class="active">Profiles</a>
-    </nav>
-  </header>
+    <main id="profile-container">
+        <!-- Minimal Empty State -->
+        <div class="bento-grid" style="height: 60vh; align-content: center; text-align: center;">
+            <div class="bento-item col-12 reveal">
+                <h1 style="font-size: 2rem;">Identity Profile</h1>
+                <p style="color: var(--text-muted); margin: 0.5rem auto 2rem;">Select an identity from the Hub to view detailed records.</p>
+                <div style="display: flex; justify-content: center;">
+                    <button onclick="window.location.href='dashboard.html'" class="btn-premium">
+                        Go to Hub <i data-lucide="arrow-right" style="width: 14px;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
 
-  <main class="bb-main">
-    <div id="profile-container">
-      <div style="text-align: center; padding: 100px; color: var(--text-gray);">
-        <h2 style="font-size: 32px; color: var(--text-white);">Select a student from the <span style="color: var(--accent-lime);">Intelligence Hub</span> to view their profile.</h2>
-        <button class="bb-btn" onclick="window.location.href='dashboard.html'" style="margin-top: 32px;">Go to Hub</button>
-      </div>
-    </div>
-  </main>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

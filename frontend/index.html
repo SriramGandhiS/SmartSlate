@@ -1,67 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Smart Attendance | Monitor</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA | Surveillance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="index">
+    <header>
+        <div class="logo-wrap">
+            <i data-lucide="scan-line" style="width: 18px; color: var(--text-main);"></i>
+            <div class="logo-text">AURA</div>
+        </div>
+        <nav>
+            <a href="index.html" class="active">Surveillance</a>
+            <a href="dashboard.html">Hub</a>
+            <a href="register.html">Secure Entry</a>
+            <a href="profile.html">Sovereignty</a>
+        </nav>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="mono" style="color: var(--text-muted);" id="clock">00:00:00</div>
+        </div>
+    </header>
 
-  <header class="bb-header">
-    <div class="bb-logo">SMART<span>ATTENDANCE</span></div>
-    <nav class="bb-nav">
-      <a href="index.html" class="active">Monitor</a>
-      <a href="dashboard.html">Hub</a>
-      <a href="register.html">Register</a>
-      <a href="profile.html">Profiles</a>
-    </nav>
-  </header>
+    <main class="bento-grid">
+        <!-- Primary Feed -->
+        <div class="bento-item col-8 reveal" style="animation-delay: 0.1s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner" style="padding: 0.5rem !important; aspect-ratio: 16/9; position: relative;">
+                    <img id="live-video" src="/video_feed" alt="Optical Feed" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; top: 1rem; left: 1rem; display: flex; gap: 0.5rem;">
+                        <div class="status-tag mono" style="background: rgba(0,0,0,0.6); color: #fff; border: none; backdrop-filter: blur(4px);">
+                            <span class="status-dot"></span> LIVE
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-  <main class="bb-main">
-    <div class="bb-grid">
-      <!-- Camera Panel -->
-      <div class="bb-card">
-        <div class="bb-panel-header">
-          <div class="bb-panel-title">LIVE OPTICAL SENSOR</div>
-          <div style="color: var(--text-gray); font-size: 12px;" id="clock">00:00:00</div>
+        <!-- Verified Log -->
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.2s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h2 style="font-size: 1.25rem;">Real-time Log</h2>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Active verification stream.</p>
+                    </div>
+                    <div id="list-present" style="flex: 1; overflow-y: auto;">
+                        <!-- Data Stream -->
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="bb-camera-wrap">
-          <img id="live-video" src="/video_feed" alt="Camera Feed" crossorigin="anonymous">
-        </div>
-        <div class="bb-panel-header" style="background: transparent; flex-direction: column; align-items: flex-start; gap: 4px;">
-          <div id="api-status" style="font-size: 12px; font-weight: 700; color: var(--accent-lime);">LINK ESTABLISHED</div>
-          <div id="cooldown-status" style="font-size: 11px; color: var(--text-gray); font-weight: 600;">NEXT SCAN: READY</div>
-        </div>
-        <div style="padding: 0 20px 20px;">
-          <button class="bb-btn" style="width: 100%; padding: 10px; font-size: 11px;" onclick="location.reload()">REBOOT SYSTEM</button>
-        </div>
-      </div>
 
-      <!-- Live Roster Panel -->
-      <div class="bb-card">
-        <div class="bb-panel-header">
-          <div class="bb-panel-title">VERIFIED LOG</div>
+        <!-- Stats -->
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.3s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner">
+                    <span class="stat-label">Verified Today</span>
+                    <div class="stat-value mono" id="total-verified">0</div>
+                </div>
+            </div>
         </div>
-        <div id="list-present" style="max-height: 500px; overflow-y: auto;">
-          <!-- Data populated by script.js -->
+
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.4s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner">
+                    <span class="stat-label">System Node</span>
+                    <div class="stat-value mono">X-89</div>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.5s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner" style="justify-content: space-between; flex-direction: row; align-items: center;">
+                    <div>
+                        <span class="stat-label">Ratio</span>
+                        <div class="stat-value mono" id="present-ratio" style="margin-top: 0;">0%</div>
+                    </div>
+                    <button onclick="window.location.href='dashboard.html'" class="btn-secondary">
+                        View Hub
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- AI Interface -->
+    <div class="ai-fab reveal" style="animation-delay: 0.6s;">
+        <button onclick="toggleChat()" class="btn-premium">
+            <i data-lucide="sparkles" style="width: 16px;"></i> System AI
+        </button>
     </div>
-  </main>
 
-  <div class="ai-fab" onclick="toggleChat()">AI</div>
-
-  <div class="chat-overlay" id="chat-overlay">
-    <div style="position: absolute; top: 40px; right: 40px; font-size: 40px; cursor: pointer;" onclick="toggleChat()">&times;</div>
-    <h2 style="font-size: 40px; margin-bottom: 40px;">AURA INTELLIGENCE</h2>
-    <div id="chat-messages" style="flex: 1; overflow-y: auto; margin-bottom: 40px; display: flex; flex-direction: column; gap: 20px;"></div>
-    <div style="display: flex; gap: 20px;">
-      <input type="text" id="chat-input" class="bb-input" style="flex: 1; font-size: 18px;" placeholder="Query system data..." onkeypress="if(event.key==='Enter') sendChat()">
-      <button class="bb-btn" onclick="sendChat()" style="padding: 0 40px;">Execute</button>
+    <div class="chat-overlay" id="chat-overlay">
+        <div style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 2rem 0;">
+                <h2>System Intelligence</h2>
+                <button onclick="toggleChat()" class="btn-secondary" style="padding: 0.5rem;">
+                    <i data-lucide="x" style="width: 16px;"></i>
+                </button>
+            </div>
+            <div id="chat-messages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-bottom: 2rem;"></div>
+            <div style="padding: 1rem 0 2rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="chat-input" placeholder="Ask the system..." style="flex: 1;" onkeypress="if(event.key==='Enter') sendChat()">
+                    <button onclick="sendChat()" class="btn-premium">Submit</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

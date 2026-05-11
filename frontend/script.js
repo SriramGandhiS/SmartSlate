@@ -1,5 +1,5 @@
-const API_BASE = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost" 
-  ? "http://127.0.0.1:8080" 
+const API_BASE = window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+  ? "http://127.0.0.1:8080"
   : window.location.origin;
 
 // Global State
@@ -14,43 +14,41 @@ setInterval(() => {
 // Unified Data Fetcher
 async function fetchData() {
   const page = document.body.dataset.page;
-  
+
   try {
     const [reportRes, studentsRes, realRes] = await Promise.all([
       fetch(`${API_BASE}/report`),
       fetch(`${API_BASE}/students`),
       fetch(`${API_BASE}/api/realtime/dashboard`)
     ]);
-    
+
     if (!reportRes.ok || !studentsRes.ok || !realRes.ok) return;
-    
+
     const allRecords = await reportRes.json();
     const allStudents = await studentsRes.json();
     const realData = await realRes.json();
-    
-    // Update Cooldown
-    const cooldownEl = document.getElementById('cooldown-status');
-    if (cooldownEl) {
-      if (realData.next_scan_in > 0) {
-        const mins = Math.floor(realData.next_scan_in / 60);
-        const secs = realData.next_scan_in % 60;
-        cooldownEl.innerHTML = `NEXT SCAN FOR <span style="color:var(--accent-lime)">${realData.last_user}</span> IN <span style="color:white">${mins}m ${secs}s</span>`;
-      } else {
-        cooldownEl.innerHTML = `NEXT SCAN: <span style="color:var(--accent-lime)">READY</span>`;
-      }
-    }
 
-    const today = new Date().toLocaleDateString('en-CA');
-    const todayRecords = allRecords.filter(r => r[1] === today);
-    const presentNames = [...new Set(todayRecords.map(r => r[0]))];
-    
+    // Update Dashboard Stats (Index Only)
     if (page === 'index') {
+      const verifiedEl = document.getElementById('total-verified');
+      const ratioEl = document.getElementById('present-ratio');
+
+      const today = new Date().toLocaleDateString('en-CA');
+      const todayRecords = allRecords.filter(r => r[1] === today);
+      const presentCount = [...new Set(todayRecords.map(r => r[0]))].length;
+
+      if (verifiedEl) verifiedEl.textContent = presentCount;
+      if (ratioEl) ratioEl.textContent = allStudents.length > 0 ? Math.round((presentCount / allStudents.length) * 100) + '%' : '0%';
+
       renderMonitor(todayRecords);
     } else if (page === 'dashboard') {
+      const today = new Date().toLocaleDateString('en-CA');
+      const todayRecords = allRecords.filter(r => r[1] === today);
+      const presentNames = [...new Set(todayRecords.map(r => r[0]))];
       renderDashboard(allRecords, allStudents, presentNames);
     }
   } catch (err) {
-    console.error("Link Failure:", err);
+    console.error("Connectivity Interrupted:", err);
   }
 }
 
@@ -58,19 +56,23 @@ async function fetchData() {
 function renderMonitor(todayRecords) {
   const list = document.getElementById('list-present');
   if (!list) return;
-  
+
   if (todayRecords.length === 0) {
-    list.innerHTML = '<div style="padding: 40px; text-align: center; color: var(--text-gray);">AWAITING SCAN...</div>';
+    list.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Awaiting Optical Scan...</div>';
     return;
   }
-  
-  list.innerHTML = todayRecords.map(r => `
-    <div class="bb-list-item">
-      <div class="bb-item-info">
-        <span class="bb-item-name">${r[0]}</span>
-        <span class="bb-item-meta">Verified at ${r[2]}</span>
+
+  list.innerHTML = todayRecords.map((r, i) => `
+    <div class="reveal" style="animation-delay: ${i * 50}ms; margin-bottom: 0.5rem;">
+      <div style="background: var(--surface); padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h4 style="font-size: 0.9rem; font-weight: 500;">${r[0]}</h4>
+          <p class="mono" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">${r[2]}</p>
+        </div>
+        <div class="status-tag mono">
+          <span class="status-dot"></span> SECURE
+        </div>
       </div>
-      <div class="bb-badge bb-badge-lime">VERIFIED</div>
     </div>
   `).join('');
 }
@@ -80,30 +82,31 @@ function renderDashboard(allRecords, allStudents, presentNames) {
   const statTotal = document.getElementById('stat-total');
   const statAbsent = document.getElementById('stat-absent');
   const tableBody = document.getElementById('table-body');
-  
+
   if (statPresent) statPresent.textContent = presentNames.length;
   if (statTotal) statTotal.textContent = allStudents.length;
   if (statAbsent) statAbsent.textContent = allStudents.length - presentNames.length;
-  
+
   if (tableBody) {
-    tableBody.innerHTML = allRecords.map(r => `
-      <tr>
-        <td style="font-weight: 800; color: var(--accent-lime); cursor:pointer;" onclick="viewStudent('${r[0]}')">${r[0]}</td>
-        <td>${r[1]}</td>
-        <td>${r[2]}</td>
-        ${[1,2,3,4,5,6,7,8].map(p => {
+    tableBody.innerHTML = allRecords.map((r, i) => `
+      <tr class="reveal" style="animation-delay: ${i * 20}ms">
+        <td class="mono" style="font-weight: 500; cursor:pointer;" onclick="viewStudent('${r[0]}')">${r[0]}</td>
+        <td class="mono" style="color: var(--text-muted);">${r[1]}</td>
+        <td class="mono" style="color: var(--text-muted);">${r[2]}</td>
+        ${[1, 2, 3, 4, 5, 6, 7, 8].map(p => {
           const hour = p + 7;
-          const isPresent = r[2].startsWith(hour < 10 ? '0'+hour : ''+hour);
-          return `<td style="text-align:center">${isPresent ? '✅' : '-'}</td>`;
+          const isPresent = r[2].startsWith(hour < 10 ? '0' + hour : '' + hour);
+          return `<td style="text-align:center">${isPresent ? '<span class="status-tag mono"><span class="status-dot"></span> P</span>' : '<span style="color:var(--border)">-</span>'}</td>`;
         }).join('')}
       </tr>
     `).join('');
   }
 }
 
-// AI Chat
+// AI Chat Logic
 function toggleChat() {
-  document.getElementById('chat-overlay').classList.toggle('active');
+  const overlay = document.getElementById('chat-overlay');
+  overlay.style.display = overlay.style.display === 'none' ? 'flex' : 'none';
 }
 
 async function sendChat() {
@@ -112,11 +115,11 @@ async function sendChat() {
   if (!query) return;
 
   const msgBox = document.getElementById('chat-messages');
-  msgBox.innerHTML += `<div style="align-self: flex-end; background: var(--accent-lime); color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 700;">${query}</div>`;
+  msgBox.innerHTML += `<div class="reveal" style="align-self: flex-end; background: var(--text-main); color: var(--bg); padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.9rem; max-width: 80%;">` + query + `</div>`;
   input.value = "";
   
   const loadingId = 'loading-' + Date.now();
-  msgBox.innerHTML += `<div id="${loadingId}" style="align-self: flex-start; background: rgba(255,255,255,0.05); padding: 12px 20px; border-radius: 12px; color: var(--accent-lime);">Analyzing...</div>`;
+  msgBox.innerHTML += `<div id="${loadingId}" class="mono reveal" style="align-self: flex-start; color: var(--text-muted); font-size: 0.75rem;">Connecting...</div>`;
   msgBox.scrollTop = msgBox.scrollHeight;
 
   try {
@@ -127,12 +130,35 @@ async function sendChat() {
     });
     const data = await res.json();
     document.getElementById(loadingId).remove();
-    msgBox.innerHTML += `<div style="align-self: flex-start; background: rgba(255,255,255,0.05); padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border-color);">${data.response}</div>`;
+    msgBox.innerHTML += `
+      <div class="reveal" style="align-self: flex-start; background: var(--surface); border: 1px solid var(--border); padding: 1rem; border-radius: var(--radius-md); font-size: 0.9rem; max-width: 80%; line-height: 1.5;">
+        ${data.response}
+      </div>
+    `;
     msgBox.scrollTop = msgBox.scrollHeight;
   } catch (err) {
-    document.getElementById(loadingId).innerText = "Link Failure.";
+    document.getElementById(loadingId).innerText = "Connection Failed";
   }
 }
+
+// Theme Management
+function initTheme() {
+  const currentTheme = localStorage.getItem('aura-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+}
+
+// Boot
+window.addEventListener('load', () => {
+  initTheme();
+  const page = document.body.dataset.page;
+
+  if (page === 'profile') {
+    renderProfile();
+  } else {
+    fetchData();
+    setInterval(fetchData, 5000);
+  }
+});
 
 // Student Profile
 async function viewStudent(name) {
@@ -148,103 +174,65 @@ async function renderProfile() {
   try {
     const res = await fetch(`${API_BASE}/student/${encodeURIComponent(name)}`);
     const data = await res.json();
-    
+
     container.innerHTML = `
-      <div class="bb-card" style="padding: 40px;">
-        <h1 style="font-size: 48px; color: var(--accent-lime); margin-bottom: 8px;">${data.name}</h1>
-        <p style="color: var(--text-gray); margin-bottom: 32px;">${data.details}</p>
-        
-        <div class="bb-stats-grid" style="margin-bottom: 40px;">
-          <div class="bb-stat-item">
-            <div class="bb-stat-label">Percentage</div>
-            <div class="bb-stat-value lime">${data.percentage}%</div>
-          </div>
-          <div class="bb-stat-item">
-            <div class="bb-stat-label">Present</div>
-            <div class="bb-stat-value">${data.present}</div>
-          </div>
-          <div class="bb-stat-item">
-            <div class="bb-stat-label">Total Classes</div>
-            <div class="bb-stat-value">${data.total}</div>
+      <div class="bento-grid">
+        <div class="bento-item col-12 reveal" style="padding: 2rem 0; margin-bottom: 2rem; border-bottom: 1px solid var(--border);">
+          <div style="font-size: 0.75rem; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">IDENTITY PROFILE</div>
+          <h1 style="font-size: 3rem;">${data.name}</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.5rem;">${data.details}</p>
+        </div>
+
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.1s;">
+          <div class="bezel-outer">
+            <div class="bezel-inner">
+              <span class="stat-label">Reliability Index</span>
+              <div class="stat-value mono">${data.percentage}%</div>
+            </div>
           </div>
         </div>
 
-        <div class="bb-card">
-          <div class="bb-panel-header"><div class="bb-panel-title">TIMESTAMPS</div></div>
-          <div style="max-height: 400px; overflow-y: auto;">
-            ${data.records.map(r => `
-              <div class="bb-list-item">
-                <div class="bb-item-info"><span class="bb-item-name">${r.date}</span></div>
-                <span class="bb-item-meta">${r.time}</span>
-              </div>
-            `).join('')}
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.2s;">
+          <div class="bezel-outer">
+            <div class="bezel-inner">
+              <span class="stat-label">Successful Checks</span>
+              <div class="stat-value mono">${data.present}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.3s;">
+          <div class="bezel-outer">
+            <div class="bezel-inner">
+              <span class="stat-label">Total Sessions</span>
+              <div class="stat-value mono">${data.total}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bento-item col-12 reveal" style="animation-delay: 0.4s; margin-top: 2rem;">
+          <div class="bezel-outer">
+            <div class="bezel-inner" style="padding: 0 !important;">
+               <div style="padding: 1.5rem; border-bottom: 1px solid var(--border);">
+                  <h3 style="font-size: 1.1rem;">Access History</h3>
+               </div>
+               <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                  ${data.records.map((r, i) => `
+                    <div class="reveal" style="animation-delay: ${i * 30}ms; background: var(--surface-hover); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                      <div>
+                        <h4 style="font-size: 0.9rem; font-weight: 500;">${r.date}</h4>
+                        <p class="mono" style="font-size: 0.75rem; color: var(--text-muted);">${r.time}</p>
+                      </div>
+                      <div class="status-tag mono"><span class="status-dot"></span> LOGGED</div>
+                    </div>
+                  `).join('')}
+               </div>
+            </div>
           </div>
         </div>
       </div>
     `;
   } catch (e) {
-    container.innerHTML = "Error loading profile.";
+    container.innerHTML = "<div class='mono reveal' style='text-align:center; padding:5rem; color: var(--text-muted);'>ACCESS_DENIED</div>";
   }
-}
-
-// Register
-async function registerStudent() {
-  const name = document.getElementById('reg-name').value;
-  const details = document.getElementById('reg-details').value;
-  const msg = document.getElementById('reg-message');
-  
-  if (!name) return msg.innerText = "NAME REQUIRED";
-  
-  msg.innerText = "INITIALIZING BURST CAPTURE...";
-  
-  for (let i = 1; i <= 5; i++) {
-    msg.innerText = `CAPTURING ANGLE ${i}/5...`;
-    
-    // Fetch frame directly from backend to avoid camera locks
-    const frameRes = await fetch(`${API_BASE}/capture_frame`);
-    const blob = await frameRes.blob();
-    const image = await new Promise(r => {
-      const reader = new FileReader();
-      reader.onloadend = () => r(reader.result);
-      reader.readAsDataURL(blob);
-    });
-    
-    await fetch(`${API_BASE}/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, image, details })
-    });
-    await new Promise(r => setTimeout(r, 600));
-  }
-  
-  msg.innerText = "REGISTRATION COMPLETE.";
-}
-
-// Boot
-window.addEventListener('load', () => {
-  const page = document.body.dataset.page;
-  
-  if (page === 'register') {
-    // No getUserMedia needed, we use /video_feed
-  } else if (page === 'profile') {
-    renderProfile();
-  } else {
-    fetchData();
-    setInterval(fetchData, 5000);
-  }
-});
-
-function searchFromDashboard() {
-  const name = document.getElementById('search-name').value;
-  if (name) viewStudent(name);
-}
-
-async function loadSelectedMonth() {
-  // Not fully implemented in this version, but can be added back if needed
-  fetchData();
-}
-
-async function generateAIReport() {
-  await fetch(`${API_BASE}/ai/generate_report`, { method: "POST" });
-  alert("AI Intelligence Report Generated. Check /reports/latest");
 }

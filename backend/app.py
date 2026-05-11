@@ -27,12 +27,34 @@ ai_handler = AttendanceAI()
 
 # MongoDB Configuration
 import certifi
+print("Connecting to MongoDB...", flush=True)
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
-client = pymongo.MongoClient(MONGO_URI, tlsCAFile=certifi.where())
-db = client["smart_attendance"]
+try:
+    client = pymongo.MongoClient(MONGO_URI, tlsCAFile=certifi.where(), serverSelectionTimeoutMS=2000, tlsAllowInvalidCertificates=True)
+    # Quick check
+    client.admin.command('ping')
+    print("DONE: MongoDB Connected.", flush=True)
+except Exception as e:
+    print(f"FAIL: MongoDB Connection Failed: {e}", flush=True)
+    print("WARN: Falling back to Local Mock Mode.", flush=True)
+    # Create a mock client that doesn't crash
+    class MockCol:
+        def find_one(self, *args, **kwargs): return None
+        def find(self, *args, **kwargs): return []
+        def insert_one(self, *args, **kwargs): pass
+        def update_one(self, *args, **kwargs): pass
+        def count_documents(self, *args, **kwargs): return 0
+        def distinct(self, *args, **kwargs): return []
+        def create_index(self, *args, **kwargs): pass
+    class MockDB:
+        def __getitem__(self, name): return MockCol()
+    client = None
+    db = MockDB()
+
 students_col = db["students"]
 attendance_col = db["attendance"]
 config_col = db["config"]
+print("MongoDB client initialized.", flush=True)
 
 def save_recognizer():
     # No need to create directory as /tmp exists
@@ -54,15 +76,18 @@ def save_recognizer():
 
 def load_recognizer():
     global label_map
-    # Try loading from cloud first for ROBUSTNESS
-    model_data = config_col.find_one({"type": "face_model"})
-    if model_data:
-        # No need to create directory as /tmp exists
-        with open(TRAINER_FILE, "wb") as f:
-            f.write(model_data["trainer"])
-        with open(LABELS_FILE, "wb") as f:
-            f.write(model_data["labels"])
-        print("✅ Face Intelligence Synced from Cloud")
+    try:
+        # Try loading from cloud first for ROBUSTNESS
+        model_data = config_col.find_one({"type": "face_model"})
+        if model_data:
+            # No need to create directory as /tmp exists
+            with open(TRAINER_FILE, "wb") as f:
+                f.write(model_data["trainer"])
+            with open(LABELS_FILE, "wb") as f:
+                f.write(model_data["labels"])
+            print("DONE: Face Intelligence Synced from Cloud", flush=True)
+    except Exception as e:
+        print(f"WARN: Cloud sync failed: {e}. Using local cache.", flush=True)
     
     if os.path.exists(TRAINER_FILE) and os.path.exists(LABELS_FILE):
         recognizer.read(TRAINER_FILE)
@@ -70,7 +95,9 @@ def load_recognizer():
             label_map = pickle.load(f)
 
 label_map = {} 
+print("Loading recognizer...", flush=True)
 load_recognizer()
+print("Recognizer loaded.", flush=True)
 
 
 # Initialize Flask with frontend as static folder
