@@ -21,13 +21,25 @@ function initScrollAnimations() {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
-        // Don't unobserve — keep visible once triggered
+        observer.unobserve(entry.target); // once visible, always visible
       }
     });
-  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  }, {
+    threshold: 0,                      // trigger the moment ANY pixel is visible
+    rootMargin: '0px 0px 60px 0px'    // pre-trigger 60px before element enters
+  });
 
-  targets.forEach(el => observer.observe(el));
+  targets.forEach(el => {
+    // If already in viewport on load, make visible immediately
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      el.classList.add('visible');
+    } else {
+      observer.observe(el);
+    }
+  });
 }
+
 
 // ── Data Fetch & Render ───────────────────────────────────────────────────────
 async function fetchData() {
@@ -52,7 +64,14 @@ async function fetchData() {
     if (page === 'index') {
       const verifiedEl = document.getElementById('total-verified');
       const ratioEl    = document.getElementById('present-ratio');
+      const pIdx       = document.getElementById('stat-present-index');
+      const tIdx       = document.getElementById('stat-total-index');
+      const logCount   = document.getElementById('log-count');
+
       if (verifiedEl) verifiedEl.textContent = presentNames.length || '0';
+      if (pIdx)       pIdx.textContent       = presentNames.length || '0';
+      if (tIdx)       tIdx.textContent       = allStudents.length  || '0';
+      if (logCount)   logCount.textContent   = `${todayRecs.length} entr${todayRecs.length === 1 ? 'y' : 'ies'}`;
       if (ratioEl) {
         const pct = allStudents.length > 0
           ? Math.round((presentNames.length / allStudents.length) * 100) + '%'
@@ -60,6 +79,7 @@ async function fetchData() {
         ratioEl.textContent = pct;
       }
       renderMonitor(todayRecs);
+
 
     } else if (page === 'dashboard') {
       const statPresent = document.getElementById('stat-present');

@@ -12,7 +12,7 @@
 </head>
 <body data-page="index">
 
-  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <!-- ── Header ───────────────────────────────────────────────── -->
   <header>
     <a href="index.html" class="logo-wrap">
       <div class="logo-mark"></div>
@@ -29,96 +29,118 @@
     </div>
   </header>
 
-  <!-- ── Hero (Javino sticky-scroll hero) ───────────────────────── -->
-  <div class="hero">
-    <div class="hero-sticky">
+  <!-- ══ HERO: Branding LEFT + Live Camera RIGHT ══════════════════ -->
+  <!-- Camera is visible immediately — no scrolling needed          -->
+  <div class="hero-split">
 
-      <!-- Orbital SVG — exact Javino atom layout -->
-      <div class="orbital-wrap">
-        <svg class="orbital-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- 6 ellipses at 30° increments -->
-          <ellipse class="oe1" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5"/>
-          <ellipse class="oe2" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5" transform="rotate(30 100 100)"/>
-          <ellipse class="oe3" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5" transform="rotate(60 100 100)"/>
-          <ellipse class="oe4" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5" transform="rotate(90 100 100)"/>
-          <ellipse class="oe5" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5" transform="rotate(120 100 100)"/>
-          <ellipse class="oe6" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5" transform="rotate(150 100 100)"/>
-          <!-- Dashed orbit ring -->
-          <circle class="orbit-ring" cx="100" cy="100" r="40" fill="none" stroke="rgba(245,245,247,0.25)" stroke-width="0.8" stroke-dasharray="4 4"/>
-          <!-- Core dot -->
+    <!-- Left: Editorial type + orbital SVG -->
+    <div class="hero-left">
+      <div class="orbital-bg">
+        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse class="oe1" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5"/>
+          <ellipse class="oe2" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5" transform="rotate(30 100 100)"/>
+          <ellipse class="oe3" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5" transform="rotate(60 100 100)"/>
+          <ellipse class="oe4" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5" transform="rotate(90 100 100)"/>
+          <ellipse class="oe5" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5" transform="rotate(120 100 100)"/>
+          <ellipse class="oe6" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5" transform="rotate(150 100 100)"/>
+          <circle class="orbit-ring" cx="100" cy="100" r="40" fill="none" stroke="rgba(245,245,247,0.2)" stroke-width="0.8" stroke-dasharray="4 4"/>
           <circle cx="100" cy="100" r="3.5" fill="#f5f5f7"/>
         </svg>
       </div>
 
-      <!-- Big editorial type — OVER the orbital -->
-      <div class="hero-text">
+      <div class="hero-type">
         <span class="hero-word">Smart</span>
         <span class="hero-word stroke">Slate</span>
       </div>
 
-      <!-- Initiate Sequence scroll CTA -->
+      <div class="hero-meta">
+        <div class="meta-row">
+          <span class="meta-dot active"></span>
+          <span class="meta-label">System Online</span>
+        </div>
+        <div class="meta-row" style="margin-top:0.5rem;">
+          <span class="meta-label mono" id="total-verified" style="font-size:0.7rem;">—</span>
+          <span class="meta-label" style="margin-left:0.5rem;">verified today</span>
+        </div>
+      </div>
+
       <div class="scroll-cta">
-        <span class="scroll-label">Initiate Scan</span>
+        <span class="scroll-label">Scroll for analytics</span>
         <div class="scroll-line"></div>
       </div>
-
     </div>
-  </div>
 
-  <!-- ── Live Feed Section ──────────────────────────────────────── -->
-  <div class="section">
-    <div class="section-label reveal">Live Optical Feed</div>
-
-    <div class="feed-grid reveal" style="transition-delay:0.08s">
-      <!-- Camera stream -->
-      <div class="feed-viewport">
-        <img id="live-video" src="/video_feed" alt="Live surveillance feed">
-        <div class="feed-overlay">
-          <div>
-            <div class="live-badge">
-              <span class="live-dot"></span> LIVE
+    <!-- Right: Live camera — always visible on load -->
+    <div class="hero-right">
+      <div class="cam-panel">
+        <div class="cam-header">
+          <div class="live-badge"><span class="live-dot"></span> LIVE FEED</div>
+          <span class="mono" style="font-size:0.6rem; color:var(--muted); letter-spacing:0.1em;" id="clock2">00:00:00</span>
+        </div>
+        <div class="cam-viewport">
+          <img id="live-video" src="/video_feed" alt="Live face detection feed">
+          <!-- Face reticle overlay -->
+          <div class="cam-reticle">
+            <div class="reticle-box">
+              <span class="corner tl"></span>
+              <span class="corner tr"></span>
+              <span class="corner bl"></span>
+              <span class="corner br"></span>
             </div>
           </div>
-          <div></div>
         </div>
-      </div>
-
-      <!-- Real-time log -->
-      <div class="feed-sidebar">
-        <div class="feed-sidebar-header">
-          <h3>Verified Today</h3>
-        </div>
-        <div id="list-present">
-          <div class="log-empty">Awaiting optical scan...</div>
+        <div class="cam-footer">
+          <div>
+            <span class="stat-label">Attendance Ratio</span>
+            <div class="mono" id="present-ratio" style="font-size:1.4rem; font-weight:700; letter-spacing:-0.03em; margin-top:0.25rem;">—</div>
+          </div>
+          <a href="dashboard.html" class="btn btn-solid" style="align-self:flex-end;">View Hub →</a>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ── Stats Row ──────────────────────────────────────────────── -->
-  <div class="section" style="padding-top:0">
-    <div class="stats-grid stagger">
-      <div class="stat-cell reveal">
+  </div>
+  <!-- ══ END HERO ════════════════════════════════════════════════ -->
+
+
+  <!-- ── Below fold: Log + Stats (scroll to see) ──────────────── -->
+  <div class="below-fold">
+
+    <!-- Real-time verification log -->
+    <div class="log-section reveal">
+      <div class="log-section-header">
+        <div class="section-label" style="margin-bottom:0;">Today's Verifications</div>
+        <span class="mono" style="font-size:0.65rem; color:var(--muted);" id="log-count">0 entries</span>
+      </div>
+      <div id="list-present">
+        <div class="log-empty">Awaiting optical scan...</div>
+      </div>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="stats-grid reveal" style="transition-delay:0.1s;">
+      <div class="stat-cell">
         <span class="stat-label">Verified Today</span>
-        <div class="stat-value" id="total-verified">—</div>
+        <div class="stat-value mono" id="stat-present-index">—</div>
       </div>
-      <div class="stat-cell reveal">
-        <span class="stat-label">Attendance Ratio</span>
-        <div class="stat-value" id="present-ratio">—</div>
+      <div class="stat-cell">
+        <span class="stat-label">Total Enrolled</span>
+        <div class="stat-value mono" id="stat-total-index">—</div>
       </div>
-      <div class="stat-cell reveal">
+      <div class="stat-cell">
         <span class="stat-label">System Node</span>
-        <div class="stat-value">X-89</div>
+        <div class="stat-value mono">X-89</div>
       </div>
     </div>
+
   </div>
 
-  <!-- ── AI FAB ─────────────────────────────────────────────────── -->
+  <!-- ── AI FAB ──────────────────────────────────────────────── -->
   <div class="ai-fab">
     <button class="btn btn-solid" onclick="openChat()">System AI</button>
   </div>
 
-  <!-- ── Chat Overlay ───────────────────────────────────────────── -->
+  <!-- ── Chat Overlay ─────────────────────────────────────────── -->
   <div class="chat-overlay" id="chat-overlay">
     <div class="chat-header">
       <span class="chat-title">SmartSlate Intelligence</span>
