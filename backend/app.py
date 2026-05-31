@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file, Response, send_from_directory
+﻿from flask import Flask, request, jsonify, send_file, Response, send_from_directory
 from flask_cors import CORS
 import cv2
 import numpy as np
@@ -27,11 +27,11 @@ try:
     from ai_reporting import AttendanceAI
     ai_handler = AttendanceAI()
     AI_ENABLED = True
-    print("✅ AI Reporting enabled.", flush=True)
+    print("[OK] AI Reporting enabled.", flush=True)
 except Exception as ai_err:
     ai_handler = None
     AI_ENABLED = False
-    print(f"⚠️  AI Reporting disabled (no API key or import error): {ai_err}", flush=True)
+    print(f"[WARN] AI Reporting disabled (no API key or import error): {ai_err}", flush=True)
 
 # ─── MongoDB: Local First (Toyota Reliable) ───────────────────────────────────
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017")
@@ -50,10 +50,10 @@ def connect_mongo(uri):
                 tlsAllowInvalidCertificates=True
             )
         c.admin.command('ping')
-        print(f"✅ MongoDB Connected: {'LOCAL' if is_local else 'CLOUD'}", flush=True)
+        print(f"[OK] MongoDB Connected: {'LOCAL' if is_local else 'CLOUD'}", flush=True)
         return c
     except Exception as e:
-        print(f"❌ MongoDB Connection Failed: {e}", flush=True)
+        print(f"[ERR] MongoDB Connection Failed: {e}", flush=True)
         return None
 
 print("Connecting to MongoDB...", flush=True)
@@ -74,9 +74,9 @@ config_col     = db["config"]
 try:
     attendance_col.create_index([("name", 1), ("date", 1), ("time", -1)])
     students_col.create_index([("name", 1)], unique=True)
-    print("✅ MongoDB indexes ensured.", flush=True)
+    print("[OK] MongoDB indexes ensured.", flush=True)
 except Exception as idx_err:
-    print(f"⚠️  Index creation skipped: {idx_err}", flush=True)
+    print(f"[WARN] Index creation skipped: {idx_err}", flush=True)
 
 # ─── Face Model Persistence ──────────────────────────────────────────────────
 def save_recognizer():
@@ -95,9 +95,9 @@ def save_recognizer():
             {"$set": {"trainer": trainer_bin, "labels": labels_bin, "updated_at": datetime.now()}},
             upsert=True
         )
-        print("✅ Face model saved locally + backed up to DB.", flush=True)
+        print("[OK] Face model saved locally + backed up to DB.", flush=True)
     except Exception as e:
-        print(f"❌ save_recognizer error: {e}", flush=True)
+        print(f"[ERR] save_recognizer error: {e}", flush=True)
 
 def load_recognizer():
     """Load face model. Try DB first (handles fresh installs), fall back to local files."""
@@ -109,20 +109,20 @@ def load_recognizer():
                 f.write(model_data["trainer"])
             with open(LABELS_FILE, "wb") as f:
                 f.write(model_data["labels"])
-            print("✅ Face model loaded from DB backup.", flush=True)
+            print("[OK] Face model loaded from DB backup.", flush=True)
     except Exception as e:
-        print(f"⚠️  DB model load failed, using local files: {e}", flush=True)
+        print(f"[WARN] DB model load failed, using local files: {e}", flush=True)
 
     if os.path.exists(TRAINER_FILE) and os.path.exists(LABELS_FILE):
         try:
             recognizer.read(TRAINER_FILE)
             with open(LABELS_FILE, "rb") as f:
                 label_map = pickle.load(f)
-            print(f"✅ Recognizer loaded. {len(label_map)} student(s) registered.", flush=True)
+            print(f"[OK] Recognizer loaded. {len(label_map)} student(s) registered.", flush=True)
         except Exception as e:
-            print(f"⚠️  Could not read local model: {e}", flush=True)
+            print(f"[WARN] Could not read local model: {e}", flush=True)
     else:
-        print("ℹ️  No face model found. Register students first.", flush=True)
+        print("[INFO] No face model found. Register students first.", flush=True)
 
 label_map = {}
 load_recognizer()
@@ -212,11 +212,11 @@ def register():
             {"$set": {"name": name, "details": details, "registered_at": datetime.now()}},
             upsert=True
         )
-        print(f"✅ Registered: {name} (id={student_id})", flush=True)
+        print(f"[OK] Registered: {name} (id={student_id})", flush=True)
         return jsonify({"status": "success", "message": f"{name} registered successfully."})
 
     except Exception as e:
-        print(f"❌ Register error: {e}", flush=True)
+        print(f"[ERR] Register error: {e}", flush=True)
         return jsonify({"status": "error", "message": "Server error during registration."}), 500
 
 @app.route("/report")
@@ -225,7 +225,7 @@ def report():
         rows = list(attendance_col.find({}, {"_id": 0}).sort([("date", -1), ("time", -1)]))
         return jsonify([[r["name"], r["date"], r["time"]] for r in rows])
     except Exception as e:
-        print(f"❌ /report error: {e}")
+        print(f"[ERR] /report error: {e}")
         return jsonify([])
 
 @app.route("/report/months")
@@ -282,7 +282,7 @@ def student_profile(name):
             "records":     recs
         })
     except Exception as e:
-        print(f"❌ /student/{name} error: {e}")
+        print(f"[ERR] /student/{name} error: {e}")
         return jsonify({"status": "error", "message": "Server error."}), 500
 
 @app.route("/ai/chat", methods=["POST"])
@@ -298,7 +298,7 @@ def ai_chat():
         response = ai_handler.chat_with_attendance(query, recs, all_students=all_s)
         return jsonify({"status": "success", "response": response})
     except Exception as e:
-        print(f"❌ /ai/chat error: {e}")
+        print(f"[ERR] /ai/chat error: {e}")
         return jsonify({"status": "error", "response": f"AI error: {str(e)}"}), 500
 
 @app.route("/ai/generate_report", methods=["POST"])
@@ -313,7 +313,7 @@ def ai_generate_report():
         filepath = ai_handler.create_pdf_report(summary, recs)
         return jsonify({"status": "success", "summary": summary, "pdf_url": "/reports/latest"})
     except Exception as e:
-        print(f"❌ /ai/generate_report error: {e}")
+        print(f"[ERR] /ai/generate_report error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/reports/latest")
@@ -353,9 +353,9 @@ class VideoCamera:
                 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
                 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
                 self.cap = cap
-                print(f"✅ Camera opened on index {idx}.", flush=True)
+                print(f"[OK] Camera opened on index {idx}.", flush=True)
                 return
-        print("❌ No camera found.", flush=True)
+        print("[ERR] No camera found.", flush=True)
         self.cap = None
 
     def _capture_loop(self):
@@ -373,7 +373,7 @@ class VideoCamera:
         while self.is_active:
             # ── Camera health check ──────────────────────────────────────────
             if self.cap is None or not self.cap.isOpened():
-                print("⚠️  Camera unavailable. Reconnecting in 5s...", flush=True)
+                print("[WARN] Camera unavailable. Reconnecting in 5s...", flush=True)
                 time.sleep(5)
                 self._open_camera()
                 continue
@@ -445,7 +445,7 @@ class VideoCamera:
                                     face_cooldowns[name] = now_ts
                                     self.last_scan_name  = name
                                     self.last_scan_time  = now_ts
-                                    print(f"✅ Logged: {name} at {t_str}", flush=True)
+                                    print(f"[OK] Logged: {name} at {t_str}", flush=True)
 
                                 else:
                                     # Still locked — show countdown
@@ -463,7 +463,7 @@ class VideoCamera:
                     cv2.putText(frame, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
 
             except Exception as loop_err:
-                print(f"⚠️  Frame error (non-fatal): {loop_err}")
+                print(f"[WARN] Frame error (non-fatal): {loop_err}")
 
             # Encode frame
             ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
@@ -547,7 +547,7 @@ def dashboard_stats():
             "next_scan_in":   cooldown_rem
         })
     except Exception as e:
-        print(f"❌ /api/realtime/dashboard error: {e}")
+        print(f"[ERR] /api/realtime/dashboard error: {e}")
         return jsonify({"present_today": 0, "absent_today": 0, "total_students": 0, "present_names": []})
 
 # ─── Static Pages ─────────────────────────────────────────────────────────────
