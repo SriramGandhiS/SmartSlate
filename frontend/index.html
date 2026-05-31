@@ -1,120 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartSlate | Surveillance</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartSlate | Surveillance</title>
+  <meta name="description" content="SmartSlate — AI-powered face recognition attendance system.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,700;14..32,900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="index">
-    <header>
-        <div class="logo-wrap">
-            <i data-lucide="scan-line" style="width: 18px; color: var(--text-main);"></i>
-            <div class="logo-text">SmartSlate</div>
-        </div>
-        <nav>
-            <a href="index.html" class="active">Surveillance</a>
-            <a href="dashboard.html">Hub</a>
-            <a href="register.html">Secure Entry</a>
-            <a href="profile.html">Sovereignty</a>
-        </nav>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <div class="mono" style="color: var(--text-muted);" id="clock">00:00:00</div>
-        </div>
-    </header>
 
-    <main class="bento-grid">
-        <!-- Primary Feed -->
-        <div class="bento-item col-8 reveal" style="animation-delay: 0.1s;">
-            <div class="bezel-outer">
-                <div class="bezel-inner" style="padding: 0.5rem !important; aspect-ratio: 16/9; position: relative;">
-                    <img id="live-video" src="/video_feed" alt="Optical Feed" style="width: 100%; height: 100%; object-fit: cover;">
-                    <div style="position: absolute; top: 1rem; left: 1rem; display: flex; gap: 0.5rem;">
-                        <div class="status-tag mono" style="background: rgba(0,0,0,0.6); color: #fff; border: none; backdrop-filter: blur(4px);">
-                            <span class="status-dot"></span> LIVE
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Verified Log -->
-        <div class="bento-item col-4 reveal" style="animation-delay: 0.2s;">
-            <div class="bezel-outer">
-                <div class="bezel-inner">
-                    <div style="margin-bottom: 1.5rem;">
-                        <h2 style="font-size: 1.25rem;">Real-time Log</h2>
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">Active verification stream.</p>
-                    </div>
-                    <div id="list-present" style="flex: 1; overflow-y: auto;">
-                        <!-- Data Stream -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="bento-item col-4 reveal" style="animation-delay: 0.3s;">
-            <div class="bezel-outer">
-                <div class="bezel-inner">
-                    <span class="stat-label">Verified Today</span>
-                    <div class="stat-value mono" id="total-verified">0</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bento-item col-4 reveal" style="animation-delay: 0.4s;">
-            <div class="bezel-outer">
-                <div class="bezel-inner">
-                    <span class="stat-label">System Node</span>
-                    <div class="stat-value mono">X-89</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bento-item col-4 reveal" style="animation-delay: 0.5s;">
-            <div class="bezel-outer">
-                <div class="bezel-inner" style="justify-content: space-between; flex-direction: row; align-items: center;">
-                    <div>
-                        <span class="stat-label">Ratio</span>
-                        <div class="stat-value mono" id="present-ratio" style="margin-top: 0;">0%</div>
-                    </div>
-                    <button onclick="window.location.href='dashboard.html'" class="btn-secondary">
-                        View Hub
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- AI Interface -->
-    <div class="ai-fab reveal" style="animation-delay: 0.6s;">
-        <button onclick="toggleChat()" class="btn-premium">
-            <i data-lucide="sparkles" style="width: 16px;"></i> System AI
-        </button>
+  <!-- ── Header ─────────────────────────────────────────────────── -->
+  <header>
+    <a href="index.html" class="logo-wrap">
+      <div class="logo-mark"></div>
+      <span class="logo-text">SmartSlate</span>
+    </a>
+    <nav>
+      <a href="index.html" class="active">Surveillance</a>
+      <a href="dashboard.html">Hub</a>
+      <a href="register.html">Register</a>
+      <a href="profile.html">Profile</a>
+    </nav>
+    <div class="header-right">
+      <span id="clock">00:00:00</span>
     </div>
+  </header>
 
-    <div class="chat-overlay" id="chat-overlay">
-        <div style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh;">
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 2rem 0;">
-                <h2>System Intelligence</h2>
-                <button onclick="toggleChat()" class="btn-secondary" style="padding: 0.5rem;">
-                    <i data-lucide="x" style="width: 16px;"></i>
-                </button>
-            </div>
-            <div id="chat-messages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-bottom: 2rem;"></div>
-            <div style="padding: 1rem 0 2rem;">
-                <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="chat-input" placeholder="Ask the system..." style="flex: 1;" onkeypress="if(event.key==='Enter') sendChat()">
-                    <button onclick="sendChat()" class="btn-premium">Submit</button>
-                </div>
-            </div>
-        </div>
+  <!-- ── Hero (Javino sticky-scroll hero) ───────────────────────── -->
+  <div class="hero">
+    <div class="hero-sticky">
+
+      <!-- Orbital SVG — exact Javino atom layout -->
+      <div class="orbital-wrap">
+        <svg class="orbital-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- 6 ellipses at 30° increments -->
+          <ellipse class="oe1" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5"/>
+          <ellipse class="oe2" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5" transform="rotate(30 100 100)"/>
+          <ellipse class="oe3" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5" transform="rotate(60 100 100)"/>
+          <ellipse class="oe4" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5" transform="rotate(90 100 100)"/>
+          <ellipse class="oe5" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5" transform="rotate(120 100 100)"/>
+          <ellipse class="oe6" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.15)" stroke-width="0.5" transform="rotate(150 100 100)"/>
+          <!-- Dashed orbit ring -->
+          <circle class="orbit-ring" cx="100" cy="100" r="40" fill="none" stroke="rgba(245,245,247,0.25)" stroke-width="0.8" stroke-dasharray="4 4"/>
+          <!-- Core dot -->
+          <circle cx="100" cy="100" r="3.5" fill="#f5f5f7"/>
+        </svg>
+      </div>
+
+      <!-- Big editorial type — OVER the orbital -->
+      <div class="hero-text">
+        <span class="hero-word">Smart</span>
+        <span class="hero-word stroke">Slate</span>
+      </div>
+
+      <!-- Initiate Sequence scroll CTA -->
+      <div class="scroll-cta">
+        <span class="scroll-label">Initiate Scan</span>
+        <div class="scroll-line"></div>
+      </div>
+
     </div>
+  </div>
 
-    <script src="script.js"></script>
-    <script>lucide.createIcons();</script>
+  <!-- ── Live Feed Section ──────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-label reveal">Live Optical Feed</div>
+
+    <div class="feed-grid reveal" style="transition-delay:0.08s">
+      <!-- Camera stream -->
+      <div class="feed-viewport">
+        <img id="live-video" src="/video_feed" alt="Live surveillance feed">
+        <div class="feed-overlay">
+          <div>
+            <div class="live-badge">
+              <span class="live-dot"></span> LIVE
+            </div>
+          </div>
+          <div></div>
+        </div>
+      </div>
+
+      <!-- Real-time log -->
+      <div class="feed-sidebar">
+        <div class="feed-sidebar-header">
+          <h3>Verified Today</h3>
+        </div>
+        <div id="list-present">
+          <div class="log-empty">Awaiting optical scan...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stats Row ──────────────────────────────────────────────── -->
+  <div class="section" style="padding-top:0">
+    <div class="stats-grid stagger">
+      <div class="stat-cell reveal">
+        <span class="stat-label">Verified Today</span>
+        <div class="stat-value" id="total-verified">—</div>
+      </div>
+      <div class="stat-cell reveal">
+        <span class="stat-label">Attendance Ratio</span>
+        <div class="stat-value" id="present-ratio">—</div>
+      </div>
+      <div class="stat-cell reveal">
+        <span class="stat-label">System Node</span>
+        <div class="stat-value">X-89</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AI FAB ─────────────────────────────────────────────────── -->
+  <div class="ai-fab">
+    <button class="btn btn-solid" onclick="openChat()">System AI</button>
+  </div>
+
+  <!-- ── Chat Overlay ───────────────────────────────────────────── -->
+  <div class="chat-overlay" id="chat-overlay">
+    <div class="chat-header">
+      <span class="chat-title">SmartSlate Intelligence</span>
+      <button class="btn" onclick="closeChat()">Close</button>
+    </div>
+    <div class="chat-body" id="chat-messages"></div>
+    <div class="chat-footer">
+      <input type="text" id="chat-input" placeholder="Ask the system..." onkeypress="if(event.key==='Enter') sendChat()" style="flex:1">
+      <button class="btn btn-solid" onclick="sendChat()">Send</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>

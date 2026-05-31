@@ -1,46 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartSlate | Sovereignty</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartSlate | Profile</title>
+  <meta name="description" content="SmartSlate — individual identity attendance profile.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,700;14..32,900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="profile">
-    <header>
-        <div class="logo-wrap">
-            <i data-lucide="scan-line" style="width: 18px; color: var(--text-main);"></i>
-            <div class="logo-text">SmartSlate</div>
-        </div>
-        <nav>
-            <a href="index.html">Surveillance</a>
-            <a href="dashboard.html">Hub</a>
-            <a href="register.html">Secure Entry</a>
-            <a href="profile.html" class="active">Sovereignty</a>
-        </nav>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <div class="mono" style="color: var(--text-muted);" id="clock">00:00:00</div>
-        </div>
-    </header>
 
-    <main id="profile-container">
-        <!-- Minimal Empty State -->
-        <div class="bento-grid" style="height: 60vh; align-content: center; text-align: center;">
-            <div class="bento-item col-12 reveal">
-                <h1 style="font-size: 2rem;">Identity Profile</h1>
-                <p style="color: var(--text-muted); margin: 0.5rem auto 2rem;">Select an identity from the Hub to view detailed records.</p>
-                <div style="display: flex; justify-content: center;">
-                    <button onclick="window.location.href='dashboard.html'" class="btn-premium">
-                        Go to Hub <i data-lucide="arrow-right" style="width: 14px;"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
+  <header>
+    <a href="index.html" class="logo-wrap">
+      <div class="logo-mark"></div>
+      <span class="logo-text">SmartSlate</span>
+    </a>
+    <nav>
+      <a href="index.html">Surveillance</a>
+      <a href="dashboard.html">Hub</a>
+      <a href="register.html">Register</a>
+      <a href="profile.html" class="active">Profile</a>
+    </nav>
+    <div class="header-right">
+      <span id="clock">00:00:00</span>
+    </div>
+  </header>
 
-    <script src="script.js"></script>
-    <script>lucide.createIcons();</script>
+  <!-- Profile content injected here by JS -->
+  <main id="profile-container">
+    <!-- Default empty state -->
+    <div class="page-hero" style="min-height:calc(100vh - 72px); display:flex; flex-direction:column; justify-content:center;">
+      <div class="page-eyebrow">Identity Profile</div>
+      <h1 class="page-title">No<br>Identity<br>Selected</h1>
+      <div style="margin-top:3rem;">
+        <a href="dashboard.html" class="btn btn-solid">Go to Hub</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
