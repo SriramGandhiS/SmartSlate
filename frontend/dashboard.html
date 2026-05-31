@@ -1,117 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartSlate | Intelligence Hub</title>
-  <meta name="description" content="SmartSlate attendance hub — historical records and analytics.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,700;14..32,900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSlate | Intelligence Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="dashboard">
+    <header>
+        <div class="logo-wrap">
+            <i data-lucide="scan-line" style="width: 18px; color: var(--text-main);"></i>
+            <div class="logo-text">SmartSlate</div>
+        </div>
+        <nav>
+            <a href="index.html">Surveillance</a>
+            <a href="dashboard.html" class="active">Hub</a>
+            <a href="register.html">Secure Entry</a>
+            <a href="profile.html">Sovereignty</a>
+        </nav>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="mono" style="color: var(--text-muted);" id="clock">00:00:00</div>
+        </div>
+    </header>
 
-  <header>
-    <a href="index.html" class="logo-wrap">
-      <div class="logo-mark"></div>
-      <span class="logo-text">SmartSlate</span>
-    </a>
-    <nav>
-      <a href="index.html">Surveillance</a>
-      <a href="dashboard.html" class="active">Hub</a>
-      <a href="register.html">Register</a>
-      <a href="profile.html">Profile</a>
-    </nav>
-    <div class="header-right">
-      <span id="clock">00:00:00</span>
+    <main class="bento-grid">
+        <div class="bento-item col-12 reveal" style="padding: 1rem 0;">
+            <h1 style="font-size: 2rem;">Intelligence Hub</h1>
+        </div>
+
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.1s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner">
+                    <span class="stat-label">Verified Today</span>
+                    <div class="stat-value mono" id="stat-present">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.2s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner">
+                    <span class="stat-label">Total Occupancy</span>
+                    <div class="stat-value mono" id="stat-total">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.3s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner">
+                    <span class="stat-label">Absent Alert</span>
+                    <div class="stat-value mono" id="stat-absent" style="color: #ef4444;">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="bento-item col-12 reveal" style="animation-delay: 0.4s;">
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <input type="text" id="search-name" placeholder="Search student identity..." style="flex: 1;">
+                <button onclick="searchFromDashboard()" class="btn-premium">
+                    <i data-lucide="search" style="width: 14px;"></i> Search
+                </button>
+                <select id="month-select" style="min-width: 150px;"></select>
+                <button onclick="loadSelectedMonth()" class="btn-secondary">Filter</button>
+            </div>
+        </div>
+
+        <!-- Main Data Stream -->
+        <div class="bento-item col-12 reveal" style="animation-delay: 0.5s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="font-size: 1.1rem;">Historical Data Stream</h3>
+                        <button onclick="generateAIReport()" class="btn-secondary" style="font-size: 0.75rem;">
+                            <i data-lucide="download" style="width: 12px;"></i> Export PDF
+                        </button>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Identity</th>
+                                    <th>Date</th>
+                                    <th>Timestamp</th>
+                                    <th style="text-align:center">P1</th>
+                                    <th style="text-align:center">P2</th>
+                                    <th style="text-align:center">P3</th>
+                                    <th style="text-align:center">P4</th>
+                                    <th style="text-align:center">P5</th>
+                                    <th style="text-align:center">P6</th>
+                                    <th style="text-align:center">P7</th>
+                                    <th style="text-align:center">P8</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Streamed Data -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="ai-fab reveal" style="animation-delay: 0.6s;">
+        <button onclick="toggleChat()" class="btn-premium">
+            <i data-lucide="sparkles" style="width: 16px;"></i> Hub AI
+        </button>
     </div>
-  </header>
 
-  <!-- Page Hero -->
-  <div class="page-hero reveal">
-    <div class="page-eyebrow">Intelligence Hub</div>
-    <h1 class="page-title">Data<br>Stream</h1>
-  </div>
-
-  <!-- Stats -->
-  <div class="section" style="padding-top:0; padding-bottom:0;">
-    <div class="stats-grid stagger">
-      <div class="stat-cell reveal">
-        <span class="stat-label">Present Today</span>
-        <div class="stat-value" id="stat-present">—</div>
-      </div>
-      <div class="stat-cell reveal">
-        <span class="stat-label">Total Enrolled</span>
-        <div class="stat-value" id="stat-total">—</div>
-      </div>
-      <div class="stat-cell reveal">
-        <span class="stat-label">Absent Today</span>
-        <div class="stat-value muted" id="stat-absent">—</div>
-      </div>
+    <div class="chat-overlay" id="chat-overlay">
+        <div style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 2rem 0;">
+                <h2>Hub Intelligence</h2>
+                <button onclick="toggleChat()" class="btn-secondary" style="padding: 0.5rem;">
+                    <i data-lucide="x" style="width: 16px;"></i>
+                </button>
+            </div>
+            <div id="chat-messages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-bottom: 2rem;"></div>
+            <div style="padding: 1rem 0 2rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="chat-input" placeholder="Query hub metrics..." style="flex: 1;" onkeypress="if(event.key==='Enter') sendChat()">
+                    <button onclick="sendChat()" class="btn-premium">Submit</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Filter / Controls -->
-  <div class="section" style="padding-top:3rem; padding-bottom:0;">
-    <div class="filter-bar reveal">
-      <div class="form-field">
-        <label class="form-label">Search Identity</label>
-        <input type="text" id="search-name" placeholder="Name...">
-      </div>
-      <div class="form-field" style="min-width:160px;">
-        <label class="form-label">Filter Month</label>
-        <select id="month-select"><option value="">All months</option></select>
-      </div>
-      <button onclick="searchFromDashboard()" class="btn btn-solid">Search</button>
-      <button onclick="loadSelectedMonth()" class="btn">Filter</button>
-      <button onclick="generateAIReport()" class="btn" id="export-btn">Export PDF</button>
-    </div>
-  </div>
-
-  <!-- Historical Table -->
-  <div class="section" style="padding-top:3rem;">
-    <div class="section-label reveal">Historical Records</div>
-    <div class="table-wrap reveal" style="transition-delay:0.1s;">
-      <table>
-        <thead>
-          <tr>
-            <th>Identity</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th style="text-align:center">P1</th>
-            <th style="text-align:center">P2</th>
-            <th style="text-align:center">P3</th>
-            <th style="text-align:center">P4</th>
-            <th style="text-align:center">P5</th>
-            <th style="text-align:center">P6</th>
-            <th style="text-align:center">P7</th>
-            <th style="text-align:center">P8</th>
-          </tr>
-        </thead>
-        <tbody id="table-body">
-          <tr><td colspan="11" style="text-align:center; color:var(--muted); padding:3rem;">Loading records...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="ai-fab">
-    <button class="btn btn-solid" onclick="openChat()">Hub AI</button>
-  </div>
-
-  <div class="chat-overlay" id="chat-overlay">
-    <div class="chat-header">
-      <span class="chat-title">Hub Intelligence</span>
-      <button class="btn" onclick="closeChat()">Close</button>
-    </div>
-    <div class="chat-body" id="chat-messages"></div>
-    <div class="chat-footer">
-      <input type="text" id="chat-input" placeholder="Query attendance data..." onkeypress="if(event.key==='Enter') sendChat()" style="flex:1">
-      <button class="btn btn-solid" onclick="sendChat()">Send</button>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

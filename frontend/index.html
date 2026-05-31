@@ -1,158 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartSlate | Surveillance</title>
-  <meta name="description" content="SmartSlate — AI-powered face recognition attendance system.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,700;14..32,900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSlate | Surveillance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body data-page="index">
-
-  <!-- ── Header ───────────────────────────────────────────────── -->
-  <header>
-    <a href="index.html" class="logo-wrap">
-      <div class="logo-mark"></div>
-      <span class="logo-text">SmartSlate</span>
-    </a>
-    <nav>
-      <a href="index.html" class="active">Surveillance</a>
-      <a href="dashboard.html">Hub</a>
-      <a href="register.html">Register</a>
-      <a href="profile.html">Profile</a>
-    </nav>
-    <div class="header-right">
-      <span id="clock">00:00:00</span>
-    </div>
-  </header>
-
-  <!-- ══ HERO: Branding LEFT + Live Camera RIGHT ══════════════════ -->
-  <!-- Camera is visible immediately — no scrolling needed          -->
-  <div class="hero-split">
-
-    <!-- Left: Editorial type + orbital SVG -->
-    <div class="hero-left">
-      <div class="orbital-bg">
-        <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <ellipse class="oe1" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5"/>
-          <ellipse class="oe2" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5" transform="rotate(30 100 100)"/>
-          <ellipse class="oe3" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5" transform="rotate(60 100 100)"/>
-          <ellipse class="oe4" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5" transform="rotate(90 100 100)"/>
-          <ellipse class="oe5" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5" transform="rotate(120 100 100)"/>
-          <ellipse class="oe6" cx="100" cy="100" rx="80" ry="25" stroke="rgba(245,245,247,0.12)" stroke-width="0.5" transform="rotate(150 100 100)"/>
-          <circle class="orbit-ring" cx="100" cy="100" r="40" fill="none" stroke="rgba(245,245,247,0.2)" stroke-width="0.8" stroke-dasharray="4 4"/>
-          <circle cx="100" cy="100" r="3.5" fill="#f5f5f7"/>
-        </svg>
-      </div>
-
-      <div class="hero-type">
-        <span class="hero-word">Smart</span>
-        <span class="hero-word stroke">Slate</span>
-      </div>
-
-      <div class="hero-meta">
-        <div class="meta-row">
-          <span class="meta-dot active"></span>
-          <span class="meta-label">System Online</span>
+    <header>
+        <div class="logo-wrap">
+            <i data-lucide="scan-line" style="width: 18px; color: var(--text-main);"></i>
+            <div class="logo-text">SmartSlate</div>
         </div>
-        <div class="meta-row" style="margin-top:0.5rem;">
-          <span class="meta-label mono" id="total-verified" style="font-size:0.7rem;">—</span>
-          <span class="meta-label" style="margin-left:0.5rem;">verified today</span>
+        <nav>
+            <a href="index.html" class="active">Surveillance</a>
+            <a href="dashboard.html">Hub</a>
+            <a href="register.html">Secure Entry</a>
+            <a href="profile.html">Sovereignty</a>
+        </nav>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="mono" style="color: var(--text-muted);" id="clock">00:00:00</div>
         </div>
-      </div>
+    </header>
 
-      <div class="scroll-cta">
-        <span class="scroll-label">Scroll for analytics</span>
-        <div class="scroll-line"></div>
-      </div>
-    </div>
-
-    <!-- Right: Live camera — always visible on load -->
-    <div class="hero-right">
-      <div class="cam-panel">
-        <div class="cam-header">
-          <div class="live-badge"><span class="live-dot"></span> LIVE FEED</div>
-          <span class="mono" style="font-size:0.6rem; color:var(--muted); letter-spacing:0.1em;" id="clock2">00:00:00</span>
-        </div>
-        <div class="cam-viewport">
-          <img id="live-video" src="/video_feed" alt="Live face detection feed">
-          <!-- Face reticle overlay -->
-          <div class="cam-reticle">
-            <div class="reticle-box">
-              <span class="corner tl"></span>
-              <span class="corner tr"></span>
-              <span class="corner bl"></span>
-              <span class="corner br"></span>
+    <main class="bento-grid">
+        <!-- Primary Feed -->
+        <div class="bento-item col-8 reveal" style="animation-delay: 0.1s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner" style="padding: 0.5rem !important; aspect-ratio: 16/9; position: relative;">
+                    <img id="live-video" src="/video_feed" alt="Optical Feed" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; top: 1rem; left: 1rem; display: flex; gap: 0.5rem;">
+                        <div class="status-tag mono" style="background: rgba(0,0,0,0.6); color: #fff; border: none; backdrop-filter: blur(4px);">
+                            <span class="status-dot"></span> LIVE
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-        <div class="cam-footer">
-          <div>
-            <span class="stat-label">Attendance Ratio</span>
-            <div class="mono" id="present-ratio" style="font-size:1.4rem; font-weight:700; letter-spacing:-0.03em; margin-top:0.25rem;">—</div>
-          </div>
-          <a href="dashboard.html" class="btn btn-solid" style="align-self:flex-end;">View Hub →</a>
+
+        <!-- Verified Log -->
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.2s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner">
+                    <div style="margin-bottom: 1.5rem;">
+                        <h2 style="font-size: 1.25rem;">Real-time Log</h2>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Active verification stream.</p>
+                    </div>
+                    <div id="list-present" style="flex: 1; overflow-y: auto;">
+                        <!-- Data Stream -->
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <!-- Stats -->
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.3s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner">
+                    <span class="stat-label">Verified Today</span>
+                    <div class="stat-value mono" id="total-verified">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.4s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner">
+                    <span class="stat-label">System Node</span>
+                    <div class="stat-value mono">X-89</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bento-item col-4 reveal" style="animation-delay: 0.5s;">
+            <div class="bezel-outer">
+                <div class="bezel-inner" style="justify-content: space-between; flex-direction: row; align-items: center;">
+                    <div>
+                        <span class="stat-label">Ratio</span>
+                        <div class="stat-value mono" id="present-ratio" style="margin-top: 0;">0%</div>
+                    </div>
+                    <button onclick="window.location.href='dashboard.html'" class="btn-secondary">
+                        View Hub
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- AI Interface -->
+    <div class="ai-fab reveal" style="animation-delay: 0.6s;">
+        <button onclick="toggleChat()" class="btn-premium">
+            <i data-lucide="sparkles" style="width: 16px;"></i> System AI
+        </button>
     </div>
 
-  </div>
-  <!-- ══ END HERO ════════════════════════════════════════════════ -->
-
-
-  <!-- ── Below fold: Log + Stats (scroll to see) ──────────────── -->
-  <div class="below-fold">
-
-    <!-- Real-time verification log -->
-    <div class="log-section reveal">
-      <div class="log-section-header">
-        <div class="section-label" style="margin-bottom:0;">Today's Verifications</div>
-        <span class="mono" style="font-size:0.65rem; color:var(--muted);" id="log-count">0 entries</span>
-      </div>
-      <div id="list-present">
-        <div class="log-empty">Awaiting optical scan...</div>
-      </div>
+    <div class="chat-overlay" id="chat-overlay">
+        <div style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; height: 100vh;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 2rem 0;">
+                <h2>System Intelligence</h2>
+                <button onclick="toggleChat()" class="btn-secondary" style="padding: 0.5rem;">
+                    <i data-lucide="x" style="width: 16px;"></i>
+                </button>
+            </div>
+            <div id="chat-messages" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; padding-bottom: 2rem;"></div>
+            <div style="padding: 1rem 0 2rem;">
+                <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" id="chat-input" placeholder="Ask the system..." style="flex: 1;" onkeypress="if(event.key==='Enter') sendChat()">
+                    <button onclick="sendChat()" class="btn-premium">Submit</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Stats grid -->
-    <div class="stats-grid reveal" style="transition-delay:0.1s;">
-      <div class="stat-cell">
-        <span class="stat-label">Verified Today</span>
-        <div class="stat-value mono" id="stat-present-index">—</div>
-      </div>
-      <div class="stat-cell">
-        <span class="stat-label">Total Enrolled</span>
-        <div class="stat-value mono" id="stat-total-index">—</div>
-      </div>
-      <div class="stat-cell">
-        <span class="stat-label">System Node</span>
-        <div class="stat-value mono">X-89</div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── AI FAB ──────────────────────────────────────────────── -->
-  <div class="ai-fab">
-    <button class="btn btn-solid" onclick="openChat()">System AI</button>
-  </div>
-
-  <!-- ── Chat Overlay ─────────────────────────────────────────── -->
-  <div class="chat-overlay" id="chat-overlay">
-    <div class="chat-header">
-      <span class="chat-title">SmartSlate Intelligence</span>
-      <button class="btn" onclick="closeChat()">Close</button>
-    </div>
-    <div class="chat-body" id="chat-messages"></div>
-    <div class="chat-footer">
-      <input type="text" id="chat-input" placeholder="Ask the system..." onkeypress="if(event.key==='Enter') sendChat()" style="flex:1">
-      <button class="btn btn-solid" onclick="sendChat()">Send</button>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
