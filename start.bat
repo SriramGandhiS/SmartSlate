@@ -8,7 +8,7 @@ if errorlevel 1 (
     net start MongoDB >nul 2>&1
     if errorlevel 1 (
         echo MongoDB service not found. Trying mongod directly...
-        start /min "MongoDB" mongod --dbpath "C:\data\db"
+        start /min "MongoDB" "C:\Program Files\MongoDB\Server\8.3\bin\mongod.exe" --dbpath "C:\data\db"
         timeout /t 3 >nul
     )
 )
