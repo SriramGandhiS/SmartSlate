@@ -1,0 +1,121 @@
+name: Daily Auto Commit
+
+on:
+  schedule:
+    # Runs daily at morning IST (01:15 AM UTC / 06:45 AM IST)
+    - cron: '15 1 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make commits
+        run: |
+          git config --global user.email "iamramm8@gmail.com"
+          git config --global user.name "Sriram Gandhi S"
+          
+          FILES=("TODO.md" "BUGS.md" "testing-notes.txt" "future-updates.md" "dev-notes.md")
+          
+          # Randomize cycle count between 3 and 5 (6 to 10 commits)
+          MIN_CYCLES=3
+          MAX_CYCLES=5
+          CYCLES=$((MIN_CYCLES + RANDOM % (MAX_CYCLES - MIN_CYCLES + 1)))
+          echo "Selected random cycle count: $CYCLES"
+          
+          for i in $(seq 1 $CYCLES)
+          do
+            # Pick a random developer note file to modify
+            SELECTED_FILE=${FILES[$RANDOM % ${#FILES[@]}]}
+            echo "Starting cycle $i on file: $SELECTED_FILE"
+            
+            # Define project-specific natural commit messages based on file type
+            case "$SELECTED_FILE" in
+              "TODO.md")
+                ADD_MSGS=(
+                  "docs: update frontend layout checklist in todo"
+                  "docs: mark dashboard component connection task active"
+                  "docs: add check_db configuration item to todo list"
+                  "docs: log testing requirements for docker setup"
+                )
+                DEL_MSGS=(
+                  "docs: clean completed frontend tasks from todo"
+                  "docs: clean up database verification item in todo checklist"
+                  "docs: formatting adjustments in todo list"
+                )
+                ;;
+              "BUGS.md")
+                ADD_MSGS=(
+                  "docs: log session validation edge-case in bugs tracker"
+                  "docs: note console warning on frontend routes"
+                  "docs: track container reload timeout issue"
+                )
+                DEL_MSGS=(
+                  "docs: clean up resolved session issues in bugs tracker"
+                  "docs: normalize formatting of bug log"
+                  "docs: remove obsolete bug status reports"
+                )
+                ;;
+              "future-updates.md")
+                ADD_MSGS=(
+                  "docs: outline WebSockets real-time notifications integration plan"
+                  "docs: write draft for dashboard dark theme toggle"
+                  "docs: add export-to-pdf feature integration roadmap"
+                )
+                DEL_MSGS=(
+                  "docs: normalize formatting of future updates roadmap"
+                  "docs: refine feature updates roadmap outline"
+                  "docs: clean up future updates listing structure"
+                )
+                ;;
+              "testing-notes.txt")
+                ADD_MSGS=(
+                  "test: record local dev container build and launch validation logs"
+                  "test: document hover animation checks in mobile responsive test notes"
+                  "test: update environment variable validation notes"
+                )
+                DEL_MSGS=(
+                  "test: prune old developer logs in testing notes"
+                  "test: clean up testing notes checklist"
+                  "test: formatting updates to testing notes"
+                )
+                ;;
+              "dev-notes.md")
+                ADD_MSGS=(
+                  "docs: write development container running details"
+                  "docs: document python backend runtime specifications"
+                  "docs: update local frontend dependency installation guides"
+                )
+                DEL_MSGS=(
+                  "docs: clean up formatting in dev notes"
+                  "docs: normalize dev notes file"
+                  "docs: remove deprecated virtualenv setup tips"
+                )
+                ;;
+            esac
+            
+            # Step 1: ADD
+            echo " " >> $SELECTED_FILE
+            msg_add=${ADD_MSGS[$RANDOM % ${#ADD_MSGS[@]}]}
+            git add $SELECTED_FILE
+            git commit -m "$msg_add"
+            git push origin HEAD:${{ github.ref_name }}
+            
+            # Sleep between ADD and DEL (random 20 to 45 minutes)
+            sleep $((1200 + RANDOM % 1500))
+            
+            # Step 2: DEL
+            sed -i '$d' $SELECTED_FILE
+            msg_del=${DEL_MSGS[$RANDOM % ${#DEL_MSGS[@]}]}
+            git add $SELECTED_FILE
+            git commit -m "$msg_del"
+            git push origin HEAD:${{ github.ref_name }}
+            
+            # Sleep between cycles (random 30 to 60 minutes)
+            sleep $((1800 + RANDOM % 1800))
+          done
