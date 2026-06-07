@@ -1,4 +1,4 @@
-# 🛡️ SmartSlate — AI Face Recognition Attendance Ecosystem
+# SmartSlate — AI Face Recognition Attendance Ecosystem
 
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![OpenCV](https://img.shields.io/badge/OpenCV-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)](https://opencv.org)
@@ -12,17 +12,17 @@ An advanced, AI-driven attendance and management ecosystem designed for institut
 
 ---
 
-## 📋 Table of Contents
-- [System Architecture](#-system-architecture)
-- [Key Features](#-key-features)
-- [Tech Stack](#-tech-stack)
-- [Database & Data Flow](#-database--data-flow)
-- [Installation & Configuration](#-installation--configuration)
-- [License & Intellectual Property](#-license--intellectual-property)
+## Table of Contents
+- [System Architecture](#system-architecture)
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Database & Data Flow](#database--data-flow)
+- [Installation & Configuration](#installation--configuration)
+- [License & Intellectual Property](#license--intellectual-property)
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 graph TD
@@ -43,31 +43,31 @@ graph TD
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 1. **Biometric Face Recognition Engine**
+### 1. Biometric Face Recognition Engine
 *   Utilizes optimized **OpenCV** models using **LBPH (Local Binary Patterns Histograms)** for local face recognition.
 *   Employs high-speed **HAAR Cascades** to perform real-time, lightweight face detection at the edge.
 *   Includes automated validation filters to prevent spoofing.
 
-### 2. **Real-Time Attendance Monitoring**
+### 2. Real-Time Attendance Monitoring
 *   Sub-second, frictionless user check-in/check-out logs.
 *   Administrative web portal showing dynamic charts, live updates, and student logs instantly.
 *   Time-stamped database records with precision metrics.
 
-### 3. **AI-Driven Analytics & Insight Reports**
+### 3. AI-Driven Analytics & Insight Reports
 *   Integration with **Groq LLM** to analyze attendance patterns and generate automated summaries.
 *   PDF report compiling with **fpdf2** and statistical analytics via **Pandas**.
 *   Identifies outliers, anomalies, and logs absences automatically.
 
-### 4. **Multi-Platform Ecosystem**
+### 4. Multi-Platform Ecosystem
 *   **Web Dashboard**: Main control panel for administrators and teachers to run logs.
 *   **Teacher Companion App**: Dedicated mobile client built for Android allowing instructors to manage rosters.
 *   **Secure API Layer**: High-performance Flask REST API managing computer vision operations and sync mechanisms.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 *   **Language & Backend**: Python 3.10+, Flask, Flask-CORS
 *   **Computer Vision**: OpenCV (cv2), NumPy
@@ -78,7 +78,7 @@ graph TD
 
 ---
 
-## 📂 Project Directory Structure
+## Project Directory Structure
 
 ```text
 SmartSlate/
@@ -94,7 +94,7 @@ SmartSlate/
 
 ---
 
-## 🚀 Installation & Configuration
+## Installation & Configuration
 
 ### Prerequisites
 *   Python 3.10+
@@ -122,10 +122,10 @@ SmartSlate/
 
 ---
 
-## 📄 License & Intellectual Property
+## License & Intellectual Property
 
 **Proprietary Portfolio Project** — All rights reserved by **Sriram Gandhi S**.
 
 This repository is published exclusively for educational review, architectural assessment, and portfolio evaluation. Unauthorized replication, redistribution, commercialization, or modifications of this source code are strictly prohibited without written consent from the author.
 
-*Developed with 🛡️ by [Sriram Gandhi S](https://github.com/SriramGandhiS).*
+*Developed by [Sriram Gandhi S](https://github.com/SriramGandhiS).*
